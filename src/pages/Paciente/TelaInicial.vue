@@ -14,7 +14,7 @@
         </div>
 
         <!-- Bloco 2: encaminhamentos -->
-        <div class="janela">
+        <div class="janela" @click="$router.push('/menu/agendamentos/lista')" style="cursor: pointer;">
           <p>Meus encaminhamentos:</p>
           <p>Neuropediatria - aguardando agendamento</p>
           <p>Cardiologia - agendado</p>
