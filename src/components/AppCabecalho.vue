@@ -5,10 +5,10 @@
       
       <div class="usuario-info">
         <h1>Sistema Integrado de Saúde e Agendamento</h1>
-        <p>"Nome completo do usuario/funcionario"</p>
+        <p>{{ userStore.nome || 'Usuário' }}</p>
 
         <div class="user-down">
-          <p>"Nivel de permissão"</p>
+          <p>{{ userStore.tipo || 'Tipo' }}</p>
           <i class="fi fi-rr-angle-small-down"></i>
         </div>    
       </div>    
@@ -20,6 +20,7 @@
 
 <script>
 import logo3 from "../assets/logo3.png";
+import userStore from "@/store/userStore";
 
 export default {
   name: "AppCabecalho",
@@ -27,7 +28,8 @@ export default {
   data() {
     return {
       logo3,
+      userStore
     };
-  },
+  }
 };
 </script>

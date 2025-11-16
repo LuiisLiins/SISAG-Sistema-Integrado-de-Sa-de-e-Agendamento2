@@ -34,7 +34,11 @@
         <a href="#">Esqueci a senha</a>
       </div>
 
-      <button type="submit" class="login-btn">Entrar</button>
+      <button type="submit" class="login-btn" :disabled="carregando">
+        {{ carregando ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+      <div v-if="erro" class="erro-mensagem">{{ erro }}</div>
 
       <div class="register-link">
         <p>
@@ -47,6 +51,9 @@
 </template>
 
 <script>
+import api from '@/services/api';
+import userStore, { login } from '@/store/userStore';
+
 export default {
   name: "TelaLogin",
   data() {
@@ -54,6 +61,8 @@ export default {
       cpf: "",
       senha: "",
       lembrar: false,
+      carregando: false,
+      erro: ""
     };
   },
   methods: {
@@ -85,16 +94,76 @@ export default {
       this.cpf = valor;
     },
 
-    entrar() {
+    async entrar() {
+      // Validação básica
       if (this.cpf === "" || this.senha === "") {
         alert("Por favor, preencha CPF e senha.");
         return;
-      } else if (this.cpf !== "123.456.789-00" || this.senha !== "senha123") {
-        alert("CPF ou senha incorretos.");
-        return;
       }
 
-      this.$router.push("/Menu/inicial");
+      this.carregando = true;
+      this.erro = "";
+
+      try {
+        // Remove formatação do CPF para enviar ao backend
+        const cpfLimpo = this.cpf.replace(/\D/g, "");
+
+        // Faz a requisição de login
+        const response = await api.post('/login', {
+          cpf: cpfLimpo,
+          senha: this.senha
+        });
+
+
+        // Salva os dados do usuário na store
+        if (response.data) {
+          console.log('Resposta completa da API:', response.data);
+          
+          // Os dados vêm em response.data.usuario
+          const userData = response.data.usuario;
+          console.log('Dados do usuário:', userData);
+          
+          // Salva na store
+          login(userData);
+          
+          console.log('Store após login:', {
+            nome: userStore.nome,
+            email: userStore.email,
+            cpf: userStore.cpf,
+            tipo: userStore.tipo,
+            isAuthenticated: userStore.isAuthenticated
+          });
+          
+          // Mensagem de sucesso
+          alert('Login realizado com sucesso!');
+          
+          // Redireciona para o menu inicial
+          await this.$router.push('/Menu/inicial');
+        }
+
+      } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        
+        if (error.response) {
+          // Erro de resposta da API
+          if (error.response.status === 401) {
+            this.erro = "CPF ou senha incorretos.";
+            alert("CPF ou senha incorretos.");
+          } else if (error.response.status === 404) {
+            this.erro = "Usuário não encontrado.";
+            alert("Usuário não encontrado.");
+          } else {
+            this.erro = "Erro ao fazer login. Tente novamente.";
+            alert("Erro ao fazer login. Tente novamente.");
+          }
+        } else {
+          // Erro de conexão
+          this.erro = "Erro de conexão com o servidor.";
+          alert("Erro de conexão com o servidor.");
+        }
+      } finally {
+        this.carregando = false;
+      }
     },
   },
 };
@@ -164,6 +233,18 @@ export default {
 
 .login-btn:hover {
   background: #005fa3;
+}
+
+.login-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.erro-mensagem {
+  color: #d32f2f;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
 }
 
 .register-link {
