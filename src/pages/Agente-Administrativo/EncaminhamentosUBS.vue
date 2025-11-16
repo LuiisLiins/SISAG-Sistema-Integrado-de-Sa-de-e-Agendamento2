@@ -217,9 +217,6 @@ h1 {
   background-color: #bbdefb;
   color: #0d47a1;
   font-size: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 }
 
 .tabela-pacientes td {

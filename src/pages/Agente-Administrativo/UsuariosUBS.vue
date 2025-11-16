@@ -2,7 +2,7 @@
   <div class="meus-pacientes">
     <div class="caixa-pacientes">
       <h1>
-        <span class="icon">&#128100;</span> Meus Pacientes
+        <span class="icon">&#128100;</span> Usuarios
       </h1>
 
       <!-- Campos de pesquisa -->
@@ -10,15 +10,17 @@
         <input
           type="text"
           v-model="filtroNome"
+          @input="filtrarPacientes"
           placeholder="Pesquisar por nome"
         />
         <input
-          type="date"
-          v-model="filtroData"
-          placeholder="Pesquisar por data de nascimento"
+          type="text"
+          v-model="filtroCPF"
+          @input="filtrarPacientes"
+          placeholder="Pesquisar por CPF"
+          maxlength="14"
         />
-        <button class="btn-filtrar" @click="filtrarPacientes">Pesquisar</button>
-        <button class="btn-limpar" @click="limparFiltros">Limpar</button>
+        <button class="btn-limpar" @click="limparFiltros">Limpar Filtros</button>
       </div>
 
       <!-- Lista de pacientes -->
@@ -27,22 +29,28 @@
           <thead>
             <tr>
               <th>Nome</th>
+              <th>CPF</th>
               <th>Data de Nascimento</th>
               <th>Telefone</th>
-              <th>Ações</th>
+              <th>Email</th>
+              <th>Tipo</th>
+              <th>Cidade</th>
+              <th>UF</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(paciente, index) in pacientesFiltrados" :key="index">
               <td>{{ paciente.nome }}</td>
-              <td>{{ paciente.dataNascimento }}</td>
-              <td>{{ paciente.telefone }}</td>
-              <td>
-                <button class="btn-detalhes" @click="verDetalhes(paciente)">Ver Detalhes</button>
-              </td>
+              <td>{{ formatarCPF(paciente.cpf) }}</td>
+              <td>{{ formatarData(paciente.data_nascimento) }}</td>
+              <td>{{ formatarTelefone(paciente.telefone) }}</td>
+              <td>{{ paciente.email }}</td>
+              <td>{{ formatarTipo(paciente.tipo) }}</td>
+              <td>{{ paciente.cidade || '-' }}</td>
+              <td>{{ paciente.uf || '-' }}</td>
             </tr>
             <tr v-if="pacientesFiltrados.length === 0">
-              <td colspan="4" class="nenhum">Nenhum paciente encontrado</td>
+              <td colspan="8" class="nenhum">Nenhum paciente encontrado</td>
             </tr>
           </tbody>
         </table>
@@ -52,17 +60,15 @@
 </template>
 
 <script>
+import api from '@/services/api';
+
 export default {
   name: "MeusPacientes",
   data() {
     return {
       filtroNome: "",
-      filtroData: "",
+      filtroCPF: "",
       pacientes: [
-        { nome: "Ana Souza", dataNascimento: "1992-03-15", telefone: "(14) 98877-1234" },
-        { nome: "Carlos Lima", dataNascimento: "1988-10-22", telefone: "(14) 99654-8765" },
-        { nome: "Fernanda Alves", dataNascimento: "2000-01-09", telefone: "(14) 98456-3321" },
-        { nome: "João Silva", dataNascimento: "1990-05-20", telefone: "(14) 99888-4455" },
       ],
       pacientesFiltrados: [],
     };
@@ -71,21 +77,67 @@ export default {
     filtrarPacientes() {
       this.pacientesFiltrados = this.pacientes.filter(p => {
         const nomeMatch = p.nome.toLowerCase().includes(this.filtroNome.toLowerCase());
-        const dataMatch = !this.filtroData || p.dataNascimento === this.filtroData;
-        return nomeMatch && dataMatch;
+        
+        let cpfMatch = true;
+        if (this.filtroCPF) {
+          const cpfUsuario = p.cpf ? p.cpf.replace(/\D/g, '') : '';
+          const cpfFiltro = this.filtroCPF.replace(/\D/g, '');
+          cpfMatch = cpfUsuario.includes(cpfFiltro);
+        }
+        
+        return nomeMatch && cpfMatch;
       });
     },
+    async buscarPacientes() {
+        try {
+          const res = await api.get('/usuarios');
+          console.log('Pacientes recebidos:', res.data);
+          this.pacientes = res.data;
+          this.pacientesFiltrados = [...this.pacientes];
+        } catch (error) {
+          console.error('Erro ao buscar pacientes:', error);
+        }
+    },  
     limparFiltros() {
       this.filtroNome = "";
-      this.filtroData = "";
+      this.filtroCPF = "";
       this.pacientesFiltrados = [...this.pacientes];
     },
     verDetalhes(paciente) {
       alert(`Detalhes de ${paciente.nome}`);
+    },
+    formatarCPF(cpf) {
+      if (!cpf) return '-';
+      const apenasNumeros = cpf.replace(/\D/g, '');
+      return apenasNumeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    },
+    formatarTelefone(telefone) {
+      if (!telefone) return '-';
+      const apenasNumeros = telefone.replace(/\D/g, '');
+      if (apenasNumeros.length === 11) {
+        return apenasNumeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      } else if (apenasNumeros.length === 10) {
+        return apenasNumeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+      }
+      return telefone;
+    },
+    formatarData(data) {
+      if (!data) return '-';
+      const dataLimpa = data.split('T')[0];
+      const [ano, mes, dia] = dataLimpa.split('-');
+      return `${dia}/${mes}/${ano}`;
+    },
+    formatarTipo(tipo) {
+      const tipos = {
+        paciente: 'Paciente',
+        agente: 'Agente',
+        admin: 'Administrador'
+      };
+      return tipos[tipo] || tipo;
     }
   },
   mounted() {
-    this.pacientesFiltrados = [...this.pacientes];
+    this.buscarPacientes();
   }
 };
 </script>
@@ -107,7 +159,7 @@ export default {
   border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 800px;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
 }
@@ -175,8 +227,9 @@ h1 {
 
 .tabela-container {
   flex: 1;
+  overflow-x: auto;
   overflow-y: auto;
-  max-height: 400px;
+  max-height: 500px;
   border-radius: 8px;
   background-color: #fff;
   scrollbar-width: thin;
@@ -205,7 +258,7 @@ h1 {
 .tabela-pacientes th,
 .tabela-pacientes td {
   padding: 10px 12px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #ddd;
 }
 

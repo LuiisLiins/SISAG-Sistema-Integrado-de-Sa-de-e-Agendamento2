@@ -19,6 +19,7 @@ import AdicionarUsuario from '@/pages/Agente-Administrativo/AdicionarUsuario.vue
 // Componentes internos de Agendamentos
 import ListaAgendamentos from '@/components/Agendamentos.vue'
 import HistoricoEncaminhamentos from '@/components/Historico.vue'
+import UsuariosUBS from '@/pages/Agente-Administrativo/UsuariosUBS.vue'
 
 const routes = [
   {
@@ -56,6 +57,11 @@ const routes = [
         path: 'adicionar-usuario',
         name: 'AdicionarUsuario',
         component: AdicionarUsuario
+      },
+                  {
+        path: 'usuarios-ubs',
+        name: 'UsuariosUBS',
+        component: UsuariosUBS
       },
       {
         path: 'meus-pacientes',

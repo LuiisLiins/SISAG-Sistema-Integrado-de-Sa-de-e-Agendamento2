@@ -45,9 +45,29 @@
         </div>
       </transition>
 
-      <div class="icone" v-if="userStore.tipo === 'agente' || userStore.tipo === 'admin'" @click="$router.push('/menu/encaminhamentos-ubs')">
+      <div class="icone" v-if="userStore.tipo === 'agente' || userStore.tipo === 'admin'" @click="toggleMenuEncaminhamentos">
         <i class="fi fi-rr-list-timeline"></i>
-      </div>    
+      </div>
+
+      <!-- Menu dropdown para encaminhamentos -->
+      <transition name="fade">
+        <div v-if="mostrarMenuEncaminhamentos" class="menu-dropdown" @click="fecharMenuEncaminhamentos">
+          <div class="dropdown-opcoes" @click.stop>
+            <div class="dropdown-header">
+              <span>Encaminhamentos</span>
+              <i class="fi fi-rr-cross-small" @click="fecharMenuEncaminhamentos"></i>
+            </div>
+            <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/encaminhamentos-ubs')">
+              <i class="fi fi-rr-list-check"></i>
+              <span>Ver Encaminhamentos</span>
+            </div>
+            <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/usuarios-ubs')">
+              <i class="fi fi-rr-users-alt"></i>
+              <span>Ver Usuários</span>
+            </div>
+          </div>
+        </div>
+      </transition>
       
     </div>
   </main>
@@ -64,18 +84,31 @@ export default {
     return {
       logo2,
       userStore,
-      mostrarMenuAdicionar: false
+      mostrarMenuAdicionar: false,
+      mostrarMenuEncaminhamentos: false
     }
   },
   methods: {
     toggleMenuAdicionar() {
       this.mostrarMenuAdicionar = !this.mostrarMenuAdicionar;
+      this.mostrarMenuEncaminhamentos = false;
     },
     fecharMenu() {
       this.mostrarMenuAdicionar = false;
     },
     irPara(rota) {
       this.mostrarMenuAdicionar = false;
+      this.$router.push(rota);
+    },
+    toggleMenuEncaminhamentos() {
+      this.mostrarMenuEncaminhamentos = !this.mostrarMenuEncaminhamentos;
+      this.mostrarMenuAdicionar = false;
+    },
+    fecharMenuEncaminhamentos() {
+      this.mostrarMenuEncaminhamentos = false;
+    },
+    irParaEncaminhamentos(rota) {
+      this.mostrarMenuEncaminhamentos = false;
       this.$router.push(rota);
     }
   }
@@ -93,7 +126,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .dropdown-opcoes {
