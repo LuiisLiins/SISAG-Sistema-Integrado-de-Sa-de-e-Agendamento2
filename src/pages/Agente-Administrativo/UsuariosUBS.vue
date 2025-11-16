@@ -36,6 +36,7 @@
               <th>Tipo</th>
               <th>Cidade</th>
               <th>UF</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -48,29 +49,50 @@
               <td>{{ formatarTipo(paciente.tipo) }}</td>
               <td>{{ paciente.cidade || '-' }}</td>
               <td>{{ paciente.uf || '-' }}</td>
+              <td class="acoes">
+                <button class="btn-editar" @click="editarUsuario(paciente)" title="Editar">
+                  <i class="fi fi-rr-edit"></i>
+                </button>
+                <button class="btn-apagar" @click="confirmarExclusao(paciente)" title="Apagar">
+                  <i class="fi fi-rr-trash"></i>
+                </button>
+              </td>
             </tr>
             <tr v-if="pacientesFiltrados.length === 0">
-              <td colspan="8" class="nenhum">Nenhum paciente encontrado</td>
+              <td colspan="9" class="nenhum">Nenhum paciente encontrado</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- Modal de edição -->
+    <ModalEditaUsuario 
+      :mostrar="mostrarModal" 
+      :usuario="usuarioSelecionado" 
+      @fechar="fecharModal"
+      @atualizado="usuarioAtualizado"
+    />
   </div>
 </template>
 
 <script>
 import api from '@/services/api';
+import ModalEditaUsuario from '@/components/ModalEditaUsuario.vue';
 
 export default {
   name: "MeusPacientes",
+  components: {
+    ModalEditaUsuario
+  },
   data() {
     return {
       filtroNome: "",
       filtroCPF: "",
-      pacientes: [
-      ],
+      pacientes: [],
       pacientesFiltrados: [],
+      mostrarModal: false,
+      usuarioSelecionado: null
     };
   },
   methods: {
@@ -134,6 +156,31 @@ export default {
         admin: 'Administrador'
       };
       return tipos[tipo] || tipo;
+    },
+    editarUsuario(usuario) {
+      this.usuarioSelecionado = usuario;
+      this.mostrarModal = true;
+    },
+    fecharModal() {
+      this.mostrarModal = false;
+      this.usuarioSelecionado = null;
+    },
+    usuarioAtualizado() {
+      this.buscarPacientes();
+    },
+    async confirmarExclusao(usuario) {
+      const confirmacao = confirm(`Tem certeza que deseja excluir o usuário ${usuario.nome}?`);
+      
+      if (confirmacao) {
+        try {
+          await api.delete(`/usuarios/${usuario.id}`);
+          alert('Usuário excluído com sucesso!');
+          this.buscarPacientes(); // Recarregar lista
+        } catch (error) {
+          console.error('Erro ao excluir usuário:', error);
+          alert('Erro ao excluir usuário. Tente novamente.');
+        }
+      }
     }
   },
   mounted() {
@@ -292,6 +339,49 @@ h1 {
 .btn-detalhes:hover {
   background-color: #0d47a1;
   transform: scale(1.05);
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-editar,
+.btn-apagar {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-editar {
+  background-color: #1565c0;
+  color: white;
+}
+
+.btn-editar:hover {
+  background-color: #0d47a1;
+  transform: scale(1.1);
+}
+
+.btn-apagar {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.btn-apagar:hover {
+  background-color: #b71c1c;
+  transform: scale(1.1);
+}
+
+.btn-editar i,
+.btn-apagar i {
+  font-size: 16px;
 }
 
 /* Responsividade */
