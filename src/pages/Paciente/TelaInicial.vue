@@ -28,19 +28,19 @@
           <p>📅 Novo exame disponível para agendamento.</p>
         </div>
 
-        <!-- BLOCOS EXCLUSIVOS DO AGENTE (ACS) -->
-        <!-- Mostra apenas se for Agente -->
-        <div class="janela" v-if="userStore.tipo === 'Agente'">
+        <!-- BLOCOS EXCLUSIVOS DO agente (ACS) -->
+        <!-- Mostra apenas se for agente -->
+        <div class="janela" v-if="userStore.tipo === 'agente'">
           <p><strong>Visitas para realizar na semana:</strong></p>
           <p style="font-size: 40px; text-align: center;">20</p>
         </div>
 
-        <div class="janela" v-if="userStore.tipo === 'Agente'">
+        <div class="janela" v-if="userStore.tipo === 'agente'">
           <p><strong>Visitas registradas hoje:</strong></p>
           <p style="color: green; font-size: 40px; text-align: center;">10</p>
         </div>
         
-        <div class="janela-notificacao" v-if="userStore.tipo === 'Agente'">
+        <div class="janela-notificacao" v-if="userStore.tipo === 'agente'">
           <p style="color: red; font-size: 25px;"><strong>Pacientes com confirmação pendente!</strong></p>
           <p style="color: red; font-size: 40px; text-align: center;">15</p>
         </div>

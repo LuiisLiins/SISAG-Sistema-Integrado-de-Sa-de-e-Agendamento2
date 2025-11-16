@@ -16,7 +16,7 @@
       </div>
 
       <!-- Novo ícone para Meus Pacientes -->
-      <div class="icone"  v-if="userStore.tipo === 'Agente' || userStore.tipo === 'admin'" @click="$router.push('/menu/meus-pacientes')">
+      <div class="icone"  v-if="userStore.tipo === 'agente' || userStore.tipo === 'admin'" @click="$router.push('/menu/meus-pacientes')">
         <i class="fi fi-rr-users"></i> <!-- ícone de grupo/pacientes -->
       </div>
 
@@ -25,7 +25,7 @@
         <i class="fi fi-rr-plus"></i> <!-- ícone de adição correto -->
       </div>
 
-      <div class="icone" v-if="userStore.tipo === 'Agente' || userStore.tipo === 'admin'" @click="$router.push('/menu/encaminhamentos-ubs')">
+      <div class="icone" v-if="userStore.tipo === 'agente' || userStore.tipo === 'admin'" @click="$router.push('/menu/encaminhamentos-ubs')">
         <i class="fi fi-rr-list-timeline"></i>
       </div>    
       
