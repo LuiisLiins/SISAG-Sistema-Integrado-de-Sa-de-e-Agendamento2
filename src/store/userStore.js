@@ -17,6 +17,7 @@ const userStore = reactive({
   cidade: '',
   uf: '',
   cep: '',
+  unidade_saude: null,
   isAuthenticated: false
 });
 
@@ -47,6 +48,7 @@ const login = (userData) => {
   userStore.cidade = userData.cidade || '';
   userStore.uf = userData.uf || '';
   userStore.cep = userData.cep || '';
+  userStore.unidade_saude = userData.unidade_saude || null;
   userStore.isAuthenticated = true;
   
   localStorage.setItem('user', JSON.stringify(userData));
@@ -69,6 +71,7 @@ const logout = () => {
   userStore.cidade = '';
   userStore.uf = '';
   userStore.cep = '';
+  userStore.unidade_saude = null;
   userStore.isAuthenticated = false;
   
   localStorage.removeItem('user');

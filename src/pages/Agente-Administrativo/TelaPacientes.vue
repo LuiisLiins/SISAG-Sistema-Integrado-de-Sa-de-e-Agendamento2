@@ -27,6 +27,7 @@
           <thead>
             <tr>
               <th>Nome</th>
+              <th>CPF</th>
               <th>Data de Nascimento</th>
               <th>Telefone</th>
               <th>Ações</th>
@@ -35,8 +36,9 @@
           <tbody>
             <tr v-for="(paciente, index) in pacientesFiltrados" :key="index">
               <td>{{ paciente.nome }}</td>
-              <td>{{ paciente.dataNascimento }}</td>
-              <td>{{ paciente.telefone }}</td>
+              <td>{{ formatarCPF(paciente.cpf) }}</td>
+              <td>{{ formatarData(paciente.data_nascimento) }}</td>
+              <td>{{ formatarTelefone(paciente.telefone) }}</td>
               <td>
                 <button class="btn-detalhes" @click="verDetalhes(paciente)">Ver Detalhes</button>
               </td>
@@ -52,19 +54,18 @@
 </template>
 
 <script>
+import userStore from '@/store/userStore';
+import api from '@/services/api'; 
 export default {
   name: "MeusPacientes",
   data() {
     return {
       filtroNome: "",
       filtroData: "",
-      pacientes: [
-        { nome: "Ana Souza", dataNascimento: "1992-03-15", telefone: "(14) 98877-1234" },
-        { nome: "Carlos Lima", dataNascimento: "1988-10-22", telefone: "(14) 99654-8765" },
-        { nome: "Fernanda Alves", dataNascimento: "2000-01-09", telefone: "(14) 98456-3321" },
-        { nome: "João Silva", dataNascimento: "1990-05-20", telefone: "(14) 99888-4455" },
-      ],
+      pacientes: [],
       pacientesFiltrados: [],
+
+      userStore
     };
   },
   methods: {
@@ -75,6 +76,30 @@ export default {
         return nomeMatch && dataMatch;
       });
     },
+    async buscarPacientes() {
+      try {
+        const res = await api.get(`/usuarios/${this.userStore.id}/unidade-saude`);
+        console.log('Resposta da API:', res.data);
+        
+        // Verifica se res.data é um array, se não, tenta acessar uma propriedade que contenha o array
+        if (Array.isArray(res.data)) {
+          this.pacientes = res.data;
+        } else if (res.data.usuarios && Array.isArray(res.data.usuarios)) {
+          this.pacientes = res.data.usuarios;
+        } else if (res.data.data && Array.isArray(res.data.data)) {
+          this.pacientes = res.data.data;
+        } else {
+          console.error('Formato de resposta inesperado:', res.data);
+          this.pacientes = [];
+        }
+        
+        this.pacientesFiltrados = [...this.pacientes];
+      } catch (error) {
+        console.error('Erro ao buscar pacientes:', error);
+        this.pacientes = [];
+        this.pacientesFiltrados = [];
+      }
+    },
     limparFiltros() {
       this.filtroNome = "";
       this.filtroData = "";
@@ -82,10 +107,31 @@ export default {
     },
     verDetalhes(paciente) {
       alert(`Detalhes de ${paciente.nome}`);
+    },
+    formatarCPF(cpf) {
+      if (!cpf) return '-';
+      const apenasNumeros = cpf.replace(/\D/g, '');
+      return apenasNumeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    },
+    formatarTelefone(telefone) {
+      if (!telefone) return '-';
+      const apenasNumeros = telefone.replace(/\D/g, '');
+      if (apenasNumeros.length === 11) {
+        return apenasNumeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      } else if (apenasNumeros.length === 10) {
+        return apenasNumeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+      }
+      return telefone;
+    },
+    formatarData(data) {
+      if (!data) return '-';
+      const dataLimpa = data.split('T')[0];
+      const [ano, mes, dia] = dataLimpa.split('-');
+      return `${dia}/${mes}/${ano}`;
     }
   },
   mounted() {
-    this.pacientesFiltrados = [...this.pacientes];
+    this.buscarPacientes();
   }
 };
 </script>
