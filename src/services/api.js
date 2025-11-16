@@ -21,7 +21,7 @@ api.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.href = '/';
           break;
         case 403:
           console.error('Acesso negado');
