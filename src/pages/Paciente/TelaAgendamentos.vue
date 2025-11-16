@@ -4,11 +4,19 @@
 
     <!-- Botões para trocar a view interna -->
     <div class="info-agendamentos">
-      <button class="inf-ag" @click="$router.push({ name: 'Agendamentos' })">
+      <button 
+        class="inf-ag" 
+        :class="{ ativo: $route.name === 'Agendamentos' }"
+        @click="$router.push({ name: 'Agendamentos' })"
+      >
         Agendamentos pendentes
       </button>
 
-      <button class="inf-ag" @click="$router.push({ name: 'Historico' })">
+      <button 
+        class="inf-ag" 
+        :class="{ ativo: $route.name === 'Historico' }"
+        @click="$router.push({ name: 'Historico' })"
+      >
         Histórico de encaminhamentos
       </button>
     </div>
@@ -25,3 +33,12 @@ export default {
   name: 'TelaAgendamentos'
 }
 </script>
+
+<style scoped>
+.inf-ag.ativo {
+  background-color: #e3f2fd;
+  color: #003366;
+  border-bottom: 3px solid #0099cc;
+  font-weight: bold;
+}
+</style>

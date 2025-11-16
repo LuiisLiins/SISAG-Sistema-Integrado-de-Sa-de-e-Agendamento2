@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="conteudo-principal">
-      <h1>Bem-vindo, Bruno Albertoni</h1>
+      <h1>Bem-vindo, {{userStore.nome}}</h1>
 
       <div class="janelas">
 
@@ -30,17 +30,17 @@
 
         <!-- BLOCOS EXCLUSIVOS DO AGENTE (ACS) -->
         <!-- Mostra apenas se for Agente -->
-        <div class="janela" v-if="userStore.tipoUsuario === 'Agente'">
+        <div class="janela" v-if="userStore.tipo === 'Agente'">
           <p><strong>Visitas para realizar na semana:</strong></p>
           <p style="font-size: 40px; text-align: center;">20</p>
         </div>
 
-        <div class="janela" v-if="userStore.tipoUsuario === 'Agente'">
+        <div class="janela" v-if="userStore.tipo === 'Agente'">
           <p><strong>Visitas registradas hoje:</strong></p>
           <p style="color: green; font-size: 40px; text-align: center;">10</p>
         </div>
         
-        <div class="janela-notificacao" v-if="userStore.tipoUsuario === 'Agente'">
+        <div class="janela-notificacao" v-if="userStore.tipo === 'Agente'">
           <p style="color: red; font-size: 25px;"><strong>Pacientes com confirmação pendente!</strong></p>
           <p style="color: red; font-size: 40px; text-align: center;">15</p>
         </div>
