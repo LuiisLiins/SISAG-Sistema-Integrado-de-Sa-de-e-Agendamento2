@@ -13,6 +13,7 @@ import TelaCadastro from '@/pages/Paciente/TelaCadastro.vue'
 import TelaInformacoes from '@/pages/Paciente/TelaInformacoes.vue'
 import MeusPacientes from '@/pages/Agente-Administrativo/TelaPacientes.vue'
 import AdicionarEncaminhamento from '@/pages/Agente-Administrativo/Adicionar.vue'
+import EncaminhamentosUBS from '@/pages/Agente-Administrativo/EncaminhamentosUBS.vue'
 
 // Componentes internos de Agendamentos
 import ListaAgendamentos from '@/components/Agendamentos.vue'
@@ -54,6 +55,11 @@ const routes = [
         path: 'meus-pacientes',
         name: 'MeusPacientes',
         component: MeusPacientes
+      },
+      {
+        path: 'encaminhamentos-ubs',
+        name: 'EncaminhamentosUBS',
+        component: EncaminhamentosUBS
       }
     ]
   },

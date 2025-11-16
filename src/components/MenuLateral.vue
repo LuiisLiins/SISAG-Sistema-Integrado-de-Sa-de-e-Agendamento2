@@ -24,11 +24,11 @@
       <div class="icone" v-if="userStore.tipoUsuario === 'Administrador'" @click="$router.push('/menu/adicionar')">
         <i class="fi fi-rr-plus"></i> <!-- ícone de adição correto -->
       </div>
-      
-      <div class="icone" v-if="userStore.tipoUsuario === 'Agente'">
-        <i class="fi fi-rr-list-timeline"></i>
-      </div>
 
+      <div class="icone" v-if="userStore.tipoUsuario === 'Agente' || userStore.tipoUsuario === 'Administrador'" @click="$router.push('/menu/encaminhamentos-ubs')">
+        <i class="fi fi-rr-list-timeline"></i>
+      </div>    
+      
     </div>
   </main>
 </template>
