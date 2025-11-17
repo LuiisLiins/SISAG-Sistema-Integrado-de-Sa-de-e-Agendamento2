@@ -20,6 +20,8 @@ import AdicionarUsuario from '@/pages/Agente-Administrativo/AdicionarUsuario.vue
 import ListaAgendamentos from '@/components/Agendamentos.vue'
 import HistoricoEncaminhamentos from '@/components/Historico.vue'
 import UsuariosUBS from '@/pages/Agente-Administrativo/UsuariosUBS.vue'
+import AdicionarUnidade from '@/pages/Agente-Administrativo/AdicionarUnidade.vue'
+import UnidadesUBS from '@/pages/Agente-Administrativo/UnidadesUBS.vue'
 
 const routes = [
   {
@@ -53,15 +55,25 @@ const routes = [
         name: 'AdicionarEncaminhamento',
         component: AdicionarEncaminhamento
       },
-            {
+                  {
         path: 'adicionar-usuario',
         name: 'AdicionarUsuario',
         component: AdicionarUsuario
+      },
+            {
+        path: 'adicionar-unidade',
+        name: 'AdicionarUnidade',
+        component: AdicionarUnidade
       },
                   {
         path: 'usuarios-ubs',
         name: 'UsuariosUBS',
         component: UsuariosUBS
+      },
+                        {
+        path: 'unidades-saude',
+        name: 'UnidadesSaude',
+        component: UnidadesUBS
       },
       {
         path: 'meus-pacientes',

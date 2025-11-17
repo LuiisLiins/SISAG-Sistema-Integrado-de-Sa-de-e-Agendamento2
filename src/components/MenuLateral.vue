@@ -41,6 +41,10 @@
               <i class="fi fi-rr-users"></i>
               <span>Adicionar encaminhamento</span>
             </div>
+            <div class="dropdown-item" @click="irPara('/menu/adicionar-unidade')">
+              <i class="fi fi-rr-users"></i>
+              <span>Adicionar unidade</span>
+            </div>
           </div>
         </div>
       </transition>
@@ -64,6 +68,10 @@
             <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/usuarios-ubs')">
               <i class="fi fi-rr-users-alt"></i>
               <span>Ver Usuários</span>
+            </div>
+                        <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/unidades-saude')">
+              <i class="fi fi-rr-users-alt"></i>
+              <span>Ver Unidades de saúde</span>
             </div>
           </div>
         </div>
