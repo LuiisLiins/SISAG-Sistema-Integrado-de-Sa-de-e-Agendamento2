@@ -13,9 +13,10 @@
           placeholder="Pesquisar por nome"
         />
         <input
-          type="date"
-          v-model="filtroData"
-          placeholder="Pesquisar por data de nascimento"
+          type="text"
+          v-model="filtroCPF"
+          placeholder="Pesquisar por CPF"
+          maxlength="14"
         />
         <button class="btn-filtrar" @click="filtrarPacientes">Pesquisar</button>
         <button class="btn-limpar" @click="limparFiltros">Limpar</button>
@@ -69,7 +70,7 @@ export default {
   data() {
     return {
       filtroNome: "",
-      filtroData: "",
+      filtroCPF: "",
       pacientes: [],
       pacientesFiltrados: [],
       userStore
@@ -79,28 +80,36 @@ export default {
     filtrarPacientes() {
       this.pacientesFiltrados = this.pacientes.filter(p => {
         const nomeMatch = p.nome.toLowerCase().includes(this.filtroNome.toLowerCase());
-        // ✅ CORREÇÃO AQUI: Usando 'data_nascimento' e comparando apenas a parte da data (YYYY-MM-DD)
-        const pacienteDataLimpa = p.data_nascimento ? p.data_nascimento.split('T')[0] : '';
-        const dataMatch = !this.filtroData || pacienteDataLimpa === this.filtroData;
-        return nomeMatch && dataMatch;
+        // Filtro por CPF (remove formatação para comparar apenas números)
+        const cpfFiltroLimpo = this.filtroCPF.replace(/\D/g, '');
+        const cpfPacienteLimpo = p.cpf ? p.cpf.replace(/\D/g, '') : '';
+        const cpfMatch = !this.filtroCPF || cpfPacienteLimpo.includes(cpfFiltroLimpo);
+        return nomeMatch && cpfMatch;
       });
     },
     async buscarPacientes() {
       try {
-        const res = await api.get(`/usuarios/${this.userStore.id}/unidade-saude`);
+        const res = await api.get('/usuarios');
         console.log('Resposta da API:', res.data);
-        // Verifica se res.data é um array, se não, tenta acessar uma propriedade que contenha o array
+        
+        // Filtrar apenas usuários com tipo 'paciente'
+        let todosUsuarios = [];
         if (Array.isArray(res.data)) {
-          this.pacientes = res.data;
+          todosUsuarios = res.data;
         } else if (res.data.usuarios && Array.isArray(res.data.usuarios)) {
-          this.pacientes = res.data.usuarios;
+          todosUsuarios = res.data.usuarios;
         } else if (res.data.data && Array.isArray(res.data.data)) {
-          this.pacientes = res.data.data;
+          todosUsuarios = res.data.data;
         } else {
           console.error('Formato de resposta inesperado:', res.data);
-          this.pacientes = [];
+          todosUsuarios = [];
         }
+        
+        // Filtrar apenas pacientes
+        this.pacientes = todosUsuarios.filter(usuario => usuario.tipo === 'paciente');
         this.pacientesFiltrados = [...this.pacientes];
+        
+        console.log('Pacientes filtrados:', this.pacientes);
       } catch (error) {
         console.error('Erro ao buscar pacientes:', error);
         this.pacientes = [];
@@ -109,7 +118,7 @@ export default {
     },
     limparFiltros() {
       this.filtroNome = "";
-      this.filtroData = "";
+      this.filtroCPF = "";
       this.pacientesFiltrados = [...this.pacientes];
     },
     verDetalhes(paciente) {
