@@ -10,9 +10,16 @@
 
     <!-- ==== DADOS DO PACIENTE ==== -->
     <div class="bloco-informacoes">
-      <p><span>Nome:</span> Brunonoia</p>
+      <div class="temp">
+        <p class="nome-nascimento">
+          <span><strong>Nome:</strong> Brunonoia</span>
+        </p>
+        <p>
+          <span class="nascimento"><strong>Data de nascimento:</strong> 10/10/2010</span>
+        </p>
+      </div>
+
       <p><span>Telefone:</span> (14) 99999-9999</p>
-      <p><span>Data de nascimento:</span> 10/10/2010</p>
       <p><span>Nome da mãe:</span> Maria do back</p>
     </div>
 
@@ -41,13 +48,19 @@
       >
         <p class="status-txt">{{ enc.statusLabel }}</p>
 
-        <p><span>Especialidade:</span> {{ enc.especialidade }}</p>
+        <div class="temp">
+          <p class="especialidade-medico">
+            <span>Especialidade:</span> {{ enc.especialidade }} 
+          </p>
+          
+          <p class="especialidade-medico">
+            <span>Médico:</span> {{ enc.medico }}
+          </p>
+        </div>
 
         <p>
           <span>Data da Consulta:</span> {{ enc.data }} — {{ enc.hora }}
         </p>
-
-        <p><span>Médico:</span> {{ enc.medico }}</p>
       </div>
 
     </div>
@@ -119,15 +132,19 @@ export default {
 
 <style scoped>
 .tela-encaminhamentos {
-  width: 90%;
-  max-width: 650px;
-  margin: 80px auto;
+  width: 95%;
+  max-width: 800px;
+  margin: 20px auto;
   background-color: #e3f2fd;
-  padding: 30px;
+  padding: 10px;
   border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   font-family: "Nunito", sans-serif;
   color: #0d47a1;
+
+  display: flex;
+  flex-direction: column;
+  height: 94vh; /* altura fixa da tela */
 }
 
 .voltar {
@@ -138,6 +155,7 @@ export default {
   cursor: pointer;
   font-weight: 600;
   transition: color 0.3s;
+  text-align: left;
 }
 
 .voltar:hover {
@@ -148,31 +166,43 @@ export default {
 h1 {
   text-align: center;
   color: #1565c0;
-  margin: 20px 0 30px;
+  margin: 10px 0 20px;
 }
 
 .titulo-sub {
   font-size: 20px;
   font-weight: 700;
-  margin-top: 20px;
-  margin-bottom: 15px;
+  margin-top: 0px;
+  margin-bottom: 0px;
   color: #1565c0;
 }
 
+/* DADOS DO PACIENTE */
 .bloco-informacoes {
   background: #fff;
-  padding: 20px;
+  padding: 10px;
   border-radius: 12px;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .bloco-informacoes p {
   font-size: 17px;
   margin: 8px 0;
+  display: flex;
+}
+
+.temp {
+  display: flex;
+  justify-content: space-between;
 }
 
 .bloco-informacoes span {
+  font-weight: 700;
+  color: #0d47a1;
+}
+
+.bloco-informacoes .nascimento {
   font-weight: 700;
   color: #0d47a1;
 }
@@ -206,11 +236,15 @@ h1 {
   color: #fff;
 }
 
-/* LISTA */
+/* LISTA DE ENCAMINHAMENTOS */
 .lista-encaminhamentos {
   display: flex;
   flex-direction: column;
   gap: 15px;
+
+  overflow-y: auto; /* scroll apenas aqui */
+  flex-grow: 1; /* ocupa espaço restante */
+  padding-right: 5px;
 }
 
 /* CARD BASE */
@@ -254,7 +288,14 @@ h1 {
   margin: 6px 0;
 }
 
-.enc-card span {
+/* ESPECIALIDADE E MÉDICO LADO A LADO */
+.especialidade-medico {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.especialidade-medico span {
   font-weight: 700;
   color: #1565c0;
 }

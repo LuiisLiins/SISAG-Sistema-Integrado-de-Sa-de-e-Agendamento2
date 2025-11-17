@@ -43,14 +43,16 @@
               <td>{{ formatarData(paciente.data_nascimento) }}</td>
               <td>{{ formatarTelefone(paciente.telefone) }}</td>
               <td>
-                <button class="btn-detalhes" @click.stop="verDetalhes(paciente)">
-                  Ver Detalhes
+                <button class="btn-detalhes" 
+                        @click="$router.push('/encaminhamentos-usuario')"
+                >
+                  Detalhes
                 </button>
               </td>
             </tr>
 
             <tr v-if="pacientesFiltrados.length === 0">
-              <td colspan="4" class="nenhum">Nenhum paciente encontrado</td>
+              <td colspan="5" class="nenhum">Nenhum paciente encontrado</td>
             </tr>
           </tbody>
         </table>
@@ -70,7 +72,6 @@ export default {
       filtroData: "",
       pacientes: [],
       pacientesFiltrados: [],
-
       userStore
     };
   },
@@ -78,7 +79,9 @@ export default {
     filtrarPacientes() {
       this.pacientesFiltrados = this.pacientes.filter(p => {
         const nomeMatch = p.nome.toLowerCase().includes(this.filtroNome.toLowerCase());
-        const dataMatch = !this.filtroData || p.dataNascimento === this.filtroData;
+        // ✅ CORREÇÃO AQUI: Usando 'data_nascimento' e comparando apenas a parte da data (YYYY-MM-DD)
+        const pacienteDataLimpa = p.data_nascimento ? p.data_nascimento.split('T')[0] : '';
+        const dataMatch = !this.filtroData || pacienteDataLimpa === this.filtroData;
         return nomeMatch && dataMatch;
       });
     },
@@ -86,7 +89,6 @@ export default {
       try {
         const res = await api.get(`/usuarios/${this.userStore.id}/unidade-saude`);
         console.log('Resposta da API:', res.data);
-        
         // Verifica se res.data é um array, se não, tenta acessar uma propriedade que contenha o array
         if (Array.isArray(res.data)) {
           this.pacientes = res.data;
@@ -98,7 +100,6 @@ export default {
           console.error('Formato de resposta inesperado:', res.data);
           this.pacientes = [];
         }
-        
         this.pacientesFiltrados = [...this.pacientes];
       } catch (error) {
         console.error('Erro ao buscar pacientes:', error);
