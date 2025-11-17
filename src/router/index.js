@@ -94,7 +94,7 @@ const routes = [
     component: TelaInformacoes
   },
   {
-    path: '/encaminhamentos-usuario',
+    path: '/encaminhamentos-usuario/:id',
     name: 'TelaEncaminhamentosUsuario',
     component: TelaEncaminhamentosUsuario
   }

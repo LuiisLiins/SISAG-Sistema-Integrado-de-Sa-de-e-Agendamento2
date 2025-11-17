@@ -9,18 +9,18 @@
     <h1>Encaminhamentos do Paciente</h1>
 
     <!-- ==== DADOS DO PACIENTE ==== -->
-    <div class="bloco-informacoes">
+    <div class="bloco-informacoes" v-if="usuario">
       <div class="temp">
         <p class="nome-nascimento">
-          <span><strong>Nome:</strong> Brunonoia</span>
+          <span><strong>Nome:</strong> {{ usuario.nome }}</span>
         </p>
         <p>
-          <span class="nascimento"><strong>Data de nascimento:</strong> 10/10/2010</span>
+          <span class="nascimento"><strong>Data de nascimento:</strong> {{ formatarData(usuario.data_nascimento) }}</span>
         </p>
       </div>
 
-      <p><span>Telefone:</span> (14) 99999-9999</p>
-      <p><span>Nome da mãe:</span> Maria do back</p>
+      <p><span>Telefone:</span> {{ formatarTelefone(usuario.telefone) }}</p>
+      <p><span>Nome da mãe:</span> {{ usuario.nome_mae || '-' }}</p>
     </div>
 
     <!-- ==== FILTROS ==== -->
@@ -69,55 +69,25 @@
 </template>
 
 <script>
+import api from '@/services/api';
+
 export default {
   name: "TelaEncaminhamentosUsuario",
 
   data() {
     return {
       filtroAtivo: "todos",
-
+      usuario: null,
       filtros: [
         { texto: "Todos", valor: "todos" },
-        { texto: "Pendente", valor: "pendente" },
-        { texto: "Confirmado", valor: "confirmado" },
-        { texto: "Consultado", valor: "consultado" },
-        { texto: "Falta Confirmação", valor: "falta" },
+        { texto: "Pendente", valor: "Pendente" },
+        { texto: "Agendado", valor: "Agendado" },
+        { texto: "Concluido", valor: "Concluido" },
+        { texto: "Cancelado", valor: "Cancelado" },
+        { texto: "Perdido", valor: "Perdido" },
       ],
 
-      encaminhamentos: [
-        {
-          especialidade: "Cardiologia",
-          data: "05/03/2024",
-          hora: "14:00",
-          medico: "Dr. João Silva",
-          status: "pendente",
-          statusLabel: "Pendente",
-        },
-        {
-          especialidade: "Dermatologia",
-          data: "18/02/2024",
-          hora: "10:30",
-          medico: "Dra. Marina Costa",
-          status: "confirmado",
-          statusLabel: "Confirmado",
-        },
-        {
-          especialidade: "Oftalmologia",
-          data: "10/01/2024",
-          hora: "08:00",
-          medico: "Dr. Roberto Lima",
-          status: "consultado",
-          statusLabel: "Consultado",
-        },
-        {
-          especialidade: "Ortopedia",
-          data: "22/02/2024",
-          hora: "16:00",
-          medico: "Dr. Paulo Mendes",
-          status: "falta",
-          statusLabel: "Falta Confirmação",
-        },
-      ],
+      encaminhamentos: [],
     };
   },
 
@@ -125,6 +95,86 @@ export default {
     encaminhamentosFiltrados() {
       if (this.filtroAtivo === "todos") return this.encaminhamentos;
       return this.encaminhamentos.filter(enc => enc.status === this.filtroAtivo);
+    },
+  },
+
+  async mounted() {
+    const usuarioId = this.$route.params.id;
+    if (usuarioId) {
+      await this.buscarDadosUsuario(usuarioId);
+      await this.buscarEncaminhamentos(usuarioId);
+    } else {
+      console.error('ID do usuário não fornecido na rota');
+      alert('Erro: Paciente não identificado.');
+      this.$router.back();
+    }
+  },
+
+  methods: {
+    async buscarDadosUsuario(id) {
+      try {
+        const res = await api.get(`/usuarios/${id}`);
+        this.usuario = res.data;
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário:', error);
+        alert('Erro ao carregar dados do paciente.');
+      }
+    },
+
+    async buscarEncaminhamentos(usuarioId) {
+      try {
+        const res = await api.get('/encaminhamentos');
+        const todosEncaminhamentos = res.data || [];
+        
+        // Filtrar encaminhamentos do usuário específico
+        const encaminhamentosUsuario = todosEncaminhamentos.filter(enc => 
+          enc.usuario_id === parseInt(usuarioId) || enc.usuario?.id === parseInt(usuarioId)
+        );
+        
+        console.log('Total de encaminhamentos:', todosEncaminhamentos.length);
+        console.log('Encaminhamentos do usuário:', encaminhamentosUsuario.length);
+        console.log('Dados:', encaminhamentosUsuario);
+        
+        this.encaminhamentos = encaminhamentosUsuario.map(enc => ({
+          ...enc,
+          especialidade: enc.especialidade || '-',
+          medico: enc.medico || '-',
+          data: enc.data_agendamento ? this.formatarData(enc.data_agendamento) : 'Não agendado',
+          hora: enc.data_agendamento ? this.formatarHora(enc.data_agendamento) : '-',
+          status: enc.status || 'Pendente',
+          statusLabel: enc.status || 'Pendente',
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar encaminhamentos:', error);
+        this.encaminhamentos = [];
+      }
+    },
+
+    formatarData(data) {
+      if (!data) return '-';
+      const dataLimpa = data.split('T')[0];
+      const [ano, mes, dia] = dataLimpa.split('-');
+      return `${dia}/${mes}/${ano}`;
+    },
+
+    formatarHora(dataHora) {
+      if (!dataHora) return '-';
+      const hora = dataHora.split('T')[1];
+      if (hora) {
+        return hora.substring(0, 5);
+      }
+      return '-';
+    },
+
+    formatarTelefone(telefone) {
+      if (!telefone) return '-';
+      const apenasNumeros = telefone.replace(/\D/g, '');
+      if (apenasNumeros.length === 11) {
+        return apenasNumeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      } else if (apenasNumeros.length === 10) {
+        return apenasNumeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+      }
+      return telefone;
     },
   },
 };
@@ -261,19 +311,23 @@ h1 {
 }
 
 /* STATUS COLORS */
-.pendente {
+.Pendente {
   border-left: 6px solid #ffeb3b;
 }
 
-.confirmado {
+.Agendado {
   border-left: 6px solid #2196f3;
 }
 
-.consultado {
+.Concluido {
   border-left: 6px solid #4caf50;
 }
 
-.falta {
+.Cancelado {
+  border-left: 6px solid #9e9e9e;
+}
+
+.Perdido {
   border-left: 6px solid #ff9800;
 }
 

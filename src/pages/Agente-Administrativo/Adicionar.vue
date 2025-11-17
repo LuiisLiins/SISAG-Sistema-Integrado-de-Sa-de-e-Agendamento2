@@ -57,6 +57,13 @@
 
         <div class="linha">
           <div class="form-group">
+            <label>Médico</label>
+            <input type="text" v-model="medico" placeholder="Digite o nome do médico" />
+          </div>
+        </div>
+
+        <div class="linha">
+          <div class="form-group">
             <label>Telefone para contato</label>
             <input type="tel" v-model="telefone" @input="formatarTelefone" placeholder="(xx) xxxxx-xxxx" maxlength="15" />
           </div>
@@ -156,6 +163,7 @@ export default {
       precisaTransporte: false,
       prioridade: '',
       especialidade: '',
+      medico: '',
       carregando: false,
       unidades: [],
       unidadeSaudeId: ''
@@ -263,6 +271,7 @@ export default {
           unidade_id: this.unidadeSaudeId,
           nivel_urgencia: this.prioridade,
           especialidade: this.especialidade,
+          medico: this.medico,
           telefone: this.telefone.replace(/\D/g, ''),
           precisa_transporte: this.precisaTransporte,
           observacoes: this.observacoesGerais,
@@ -278,6 +287,7 @@ export default {
         this.unidadeSaudeId = '';
         this.prioridade = '';
         this.especialidade = '';
+        this.medico = '';
         this.telefone = '';
         this.precisaTransporte = false;
         

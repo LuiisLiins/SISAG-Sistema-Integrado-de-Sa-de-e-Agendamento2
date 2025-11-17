@@ -44,7 +44,7 @@
               <td>{{ formatarTelefone(paciente.telefone) }}</td>
               <td>
                 <button class="btn-detalhes" 
-                        @click="$router.push('/encaminhamentos-usuario')"
+                        @click="$router.push(`/encaminhamentos-usuario/${paciente.id}`)"
                 >
                   Detalhes
                 </button>
