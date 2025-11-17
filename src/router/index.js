@@ -15,6 +15,7 @@ import MeusPacientes from '@/pages/Agente-Administrativo/TelaPacientes.vue'
 import AdicionarEncaminhamento from '@/pages/Agente-Administrativo/Adicionar.vue'
 import EncaminhamentosUBS from '@/pages/Agente-Administrativo/EncaminhamentosUBS.vue'
 import AdicionarUsuario from '@/pages/Agente-Administrativo/AdicionarUsuario.vue'
+import TelaEncaminhamentosUsuario from '@/pages/Agente-Administrativo/TelaEncaminhamentosUsuario.vue'
 
 // Componentes internos de Agendamentos
 import ListaAgendamentos from '@/components/Agendamentos.vue'
@@ -91,6 +92,11 @@ const routes = [
     path: '/informacoes',
     name: 'TelaInformacoes',
     component: TelaInformacoes
+  },
+  {
+    path: '/encaminhamentos-usuario',
+    name: 'TelaEncaminhamentosUsuario',
+    component: TelaEncaminhamentosUsuario
   }
 ]
 

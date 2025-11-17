@@ -34,15 +34,23 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(paciente, index) in pacientesFiltrados" :key="index">
+            <tr 
+              v-for="(paciente, index) in pacientesFiltrados" 
+              :key="index" 
+              @click="verDetalhes(paciente)" 
+              class="linha-clicavel"
+            >
               <td>{{ paciente.nome }}</td>
               <td>{{ formatarCPF(paciente.cpf) }}</td>
               <td>{{ formatarData(paciente.data_nascimento) }}</td>
               <td>{{ formatarTelefone(paciente.telefone) }}</td>
               <td>
-                <button class="btn-detalhes" @click="verDetalhes(paciente)">Ver Detalhes</button>
+                <button class="btn-detalhes" @click.stop="verDetalhes(paciente)">
+                  Ver Detalhes
+                </button>
               </td>
             </tr>
+
             <tr v-if="pacientesFiltrados.length === 0">
               <td colspan="4" class="nenhum">Nenhum paciente encontrado</td>
             </tr>
@@ -301,4 +309,14 @@ h1 {
     padding: 20px;
   }
 }
+
+.linha-clicavel {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.linha-clicavel:hover {
+  background-color: #bbdefb;
+}
+
 </style>
