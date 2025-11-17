@@ -9,16 +9,17 @@
                         <label>Nome</label>
                         <input type="text" v-model="usuario.nome" placeholder="Digite o nome" required />
                     </div>
+                </div>
 
-                    <!-- <div class="form-group">
-            <label>Prioridade</label>
-            <select>
-              <option value="">Selecione</option>
-              <option value="Urgência">Urgência</option>
-              <option value="Eletivo">Eletivo</option>
-              <option value="Prioritário">Prioritário</option>
-            </select>
-          </div> -->
+                                <div class="linha">
+                        <div class="form-group">
+                            <label>Nome da mãe</label>
+                            <input type="text" v-model="usuario.nome_mae" placeholder="Digite o nome da mãe" required />
+                        </div>
+                                            <div class="form-group">
+                        <label>Nome do pai</label>
+                        <input type="text" v-model="usuario.nome_pai" placeholder="Digite o nome do pai" required />
+                    </div>
                 </div>
 
                 <div class="linha">
@@ -40,7 +41,7 @@
 
                     <div class="form-group">
                         <label>Cartão SUS</label>
-                        <input type="text" v-model="usuario.cartao_sus" placeholder="Digite o Cartão SUS" />
+                        <input type="text" v-model="usuario.cartao_sus" placeholder="Digite o Cartão SUS" maxlength="15"/>
                     </div>
                 </div>
 
@@ -179,7 +180,9 @@ export default {
                 endereco: '',
                 cidade: '',
                 uf: '',
-                cep: ''
+                cep: '',
+                nome_mae: '',
+                nome_pai: ''
             },
             carregando: false
         };
@@ -225,7 +228,16 @@ export default {
             this.carregando = true;
 
             try {
-                const response = await api.post('/usuarios', this.usuario);
+                // Remover formatação dos campos antes de enviar
+                const usuarioParaEnviar = {
+                    ...this.usuario,
+                    cpf: this.usuario.cpf.replace(/\D/g, ''),
+                    rg: this.usuario.rg ? this.usuario.rg.replace(/\D/g, '') : '',
+                    cep: this.usuario.cep ? this.usuario.cep.replace(/\D/g, '') : '',
+                    telefone: this.usuario.telefone ? this.usuario.telefone.replace(/\D/g, '') : ''
+                };
+
+                const response = await api.post('/usuarios', usuarioParaEnviar);
                 
                 console.log('Usuário adicionado:', response.data);
                 alert('Usuário adicionado com sucesso!');
@@ -245,7 +257,9 @@ export default {
                     endereco: '',
                     cidade: '',
                     uf: '',
-                    cep: ''
+                    cep: '',
+                    nome_mae: '',
+                    nome_pai: ''
                 };
 
             } catch (error) {

@@ -5,11 +5,8 @@
       
       <div class="usuario-info">
         <h1>Sistema Integrado de Saúde e Agendamento</h1>
-        <p>{{ userStore.nome || 'Usuário' }}</p>
-
         <div class="user-down">
           <p>{{ userStore.tipo || 'Tipo' }}</p>
-          <i class="fi fi-rr-angle-small-down"></i>
         </div>    
       </div>    
     </header>
