@@ -42,7 +42,7 @@
             <label>Prioridade</label>
             <select v-model="prioridade">
               <option value="">Selecione</option>
-              <option value="urgencia">Urgência</option>
+              <option value="urgente">Urgência</option>
               <option value="eletivo">Eletivo</option>
               <option value="prioritario">Prioritário</option>
               <option value="emergente">Emergente</option>
