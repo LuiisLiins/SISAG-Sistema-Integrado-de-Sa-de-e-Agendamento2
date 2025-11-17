@@ -36,9 +36,7 @@
           <tbody>
             <tr 
               v-for="(paciente, index) in pacientesFiltrados" 
-              :key="index" 
-              @click="verDetalhes(paciente)" 
-              class="linha-clicavel"
+              :key="index"
             >
               <td>{{ paciente.nome }}</td>
               <td>{{ formatarCPF(paciente.cpf) }}</td>
@@ -309,14 +307,4 @@ h1 {
     padding: 20px;
   }
 }
-
-.linha-clicavel {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.linha-clicavel:hover {
-  background-color: #bbdefb;
-}
-
 </style>
