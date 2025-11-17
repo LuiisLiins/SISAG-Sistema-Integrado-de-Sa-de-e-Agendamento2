@@ -67,10 +67,6 @@
             <label>Data de solicitação</label>
             <input type="date" v-model="dataSolicitacao" />
           </div>
-                    <div class="form-group">
-            <label>Data de agendamento</label>
-            <input type="date" v-model="dataAgendamento" />
-          </div>
         </div>
 
         <div class="form-group-checkbox">

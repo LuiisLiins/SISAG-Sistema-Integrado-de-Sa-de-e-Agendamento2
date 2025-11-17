@@ -11,6 +11,18 @@
                     </div>
                 </div>
 
+                <div class="linha">
+                    <div class="form-group">
+                        <label>Unidade de saúde</label>
+                        <select v-model="usuario.unidade_saude_id" required>
+                            <option value="">Selecione uma unidade</option>
+                            <option v-for="unidade in unidades" :key="unidade.id" :value="unidade.id">
+                                {{ unidade.nome }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
                                 <div class="linha">
                         <div class="form-group">
                             <label>Nome da mãe</label>
@@ -182,12 +194,26 @@ export default {
                 uf: '',
                 cep: '',
                 nome_mae: '',
-                nome_pai: ''
+                nome_pai: '',
+                unidade_saude_id: ''
             },
-            carregando: false
+            carregando: false,
+            unidades: []
         };
     },
+    mounted() {
+        this.carregarUnidades();
+    },
     methods: {
+        async carregarUnidades() {
+            try {
+                const res = await api.get('/unidades-saude');
+                this.unidades = res.data || [];
+            } catch (error) {
+                console.error('Erro ao carregar unidades:', error);
+                this.unidades = [];
+            }
+        },
         formatarCPF(event) {
             let valor = event.target.value.replace(/\D/g, '');
             
@@ -259,7 +285,8 @@ export default {
                     uf: '',
                     cep: '',
                     nome_mae: '',
-                    nome_pai: ''
+                    nome_pai: '',
+                    unidade_saude_id: ''
                 };
 
             } catch (error) {

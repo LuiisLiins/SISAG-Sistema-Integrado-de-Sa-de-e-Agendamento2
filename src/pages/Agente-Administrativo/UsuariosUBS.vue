@@ -20,6 +20,12 @@
           placeholder="Pesquisar por CPF"
           maxlength="14"
         />
+        <select v-model="filtroTipo" @change="filtrarPacientes">
+          <option value="">Todos os tipos</option>
+          <option value="paciente">Paciente</option>
+          <option value="agente">Agente</option>
+          <option value="admin">Administrador</option>
+        </select>
         <button class="btn-limpar" @click="limparFiltros">Limpar Filtros</button>
       </div>
 
@@ -89,6 +95,7 @@ export default {
     return {
       filtroNome: "",
       filtroCPF: "",
+      filtroTipo: "",
       pacientes: [],
       pacientesFiltrados: [],
       mostrarModal: false,
@@ -106,8 +113,13 @@ export default {
           const cpfFiltro = this.filtroCPF.replace(/\D/g, '');
           cpfMatch = cpfUsuario.includes(cpfFiltro);
         }
+
+        let tipoMatch = true;
+        if (this.filtroTipo) {
+          tipoMatch = p.tipo === this.filtroTipo;
+        }
         
-        return nomeMatch && cpfMatch;
+        return nomeMatch && cpfMatch && tipoMatch;
       });
     },
     async buscarPacientes() {
@@ -123,6 +135,7 @@ export default {
     limparFiltros() {
       this.filtroNome = "";
       this.filtroCPF = "";
+      this.filtroTipo = "";
       this.pacientesFiltrados = [...this.pacientes];
     },
     verDetalhes(paciente) {
