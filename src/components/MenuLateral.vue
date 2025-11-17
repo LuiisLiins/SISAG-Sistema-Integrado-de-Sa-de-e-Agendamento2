@@ -8,11 +8,11 @@
       </div>
 
       <div class="icone" @click="$router.push('/menu/agendamentos')">
-        <i class="fi fi-rr-doctor"></i>
+        <i class="fi fi-rr-calendar"></i>
       </div>
 
       <div class="icone" @click="$router.push('/menu/cadastro')">
-        <i class="fi fi-rr-user-add"></i>
+        <i class="fi fi-rr-user"></i>
       </div>
 
       <!-- Novo ícone para Meus Pacientes -->
@@ -38,11 +38,11 @@
               <span>Adicionar Usuário</span>
             </div>
             <div class="dropdown-item" @click="irPara('/menu/adicionar')">
-              <i class="fi fi-rr-users"></i>
+              <i class="fi fi-rr-document-signed"></i>
               <span>Adicionar encaminhamento</span>
             </div>
             <div class="dropdown-item" @click="irPara('/menu/adicionar-unidade')">
-              <i class="fi fi-rr-users"></i>
+              <i class="fi fi-rr-hospital"></i>
               <span>Adicionar unidade</span>
             </div>
           </div>
@@ -50,7 +50,7 @@
       </transition>
 
       <div class="icone" v-if="userStore.tipo === 'agente' || userStore.tipo === 'admin'" @click="toggleMenuEncaminhamentos">
-        <i class="fi fi-rr-list-timeline"></i>
+        <i class="fi fi-rr-clipboard-list-check"></i>
       </div>
 
       <!-- Menu dropdown para encaminhamentos -->
@@ -62,7 +62,7 @@
               <i class="fi fi-rr-cross-small" @click="fecharMenuEncaminhamentos"></i>
             </div>
             <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/encaminhamentos-ubs')">
-              <i class="fi fi-rr-list-check"></i>
+              <i class="fi fi-rr-file-medical-alt"></i>
               <span>Ver Encaminhamentos</span>
             </div>
             <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/usuarios-ubs')">
@@ -70,7 +70,7 @@
               <span>Ver Usuários</span>
             </div>
                         <div class="dropdown-item" @click="irParaEncaminhamentos('/menu/unidades-saude')">
-              <i class="fi fi-rr-users-alt"></i>
+              <i class="fi fi-rr-building"></i>
               <span>Ver Unidades de saúde</span>
             </div>
           </div>

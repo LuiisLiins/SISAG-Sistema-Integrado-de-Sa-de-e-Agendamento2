@@ -82,10 +82,10 @@ export default {
                 const res = await api.get('/encaminhamentos');
                 const todosEncaminhamentos = res.data || [];
                 
-                // Filtrar apenas encaminhamentos do usuário logado que estão concluídos, cancelados ou perdidos
+                // Filtrar apenas encaminhamentos do usuário logado que estão confirmados, concluídos, cancelados ou perdidos
                 state.historico = todosEncaminhamentos.filter(enc => {
                     const pertenceUsuario = enc.usuario_id === userStore.id || enc.usuario?.id === userStore.id;
-                    const statusFinalizado = ['Concluido', 'Cancelado', 'Perdido'].includes(enc.status);
+                    const statusFinalizado = ['Confirmado', 'Concluido', 'Cancelado', 'Perdido'].includes(enc.status);
                     return pertenceUsuario && statusFinalizado;
                 });
                 
