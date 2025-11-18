@@ -32,7 +32,7 @@
 
             <div class="info-linha">
               <div class="info-item">
-                <label>Unidade de Saúde:</label>
+                <label>Unidade de Saúde Solicitante:</label>
                 <span>{{ encaminhamento?.unidade?.nome || '-' }}</span>
               </div>
               <div class="info-item">

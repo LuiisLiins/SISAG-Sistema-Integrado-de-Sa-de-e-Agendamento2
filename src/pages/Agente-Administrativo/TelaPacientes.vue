@@ -65,13 +65,14 @@
 <script>
 import userStore from '@/store/userStore';
 import api from '@/services/api'; 
+
 export default {
   name: "MeusPacientes",
   data() {
     return {
       filtroNome: "",
       filtroCPF: "",
-      pacientes: [],
+      pacientes: [],           // pode manter o nome mesmo
       pacientesFiltrados: [],
       userStore
     };
@@ -92,7 +93,6 @@ export default {
         const res = await api.get('/usuarios');
         console.log('Resposta da API:', res.data);
         
-        // Filtrar apenas usuários com tipo 'paciente'
         let todosUsuarios = [];
         if (Array.isArray(res.data)) {
           todosUsuarios = res.data;
@@ -104,14 +104,14 @@ export default {
           console.error('Formato de resposta inesperado:', res.data);
           todosUsuarios = [];
         }
+
+        // **Removido filtro de tipo, agora mostra todos**
+        this.pacientes = [...todosUsuarios];
+        this.pacientesFiltrados = [...todosUsuarios];
         
-        // Filtrar apenas pacientes
-        this.pacientes = todosUsuarios.filter(usuario => usuario.tipo === 'paciente');
-        this.pacientesFiltrados = [...this.pacientes];
-        
-        console.log('Pacientes filtrados:', this.pacientes);
+        console.log('Todos os usuários:', this.pacientes);
       } catch (error) {
-        console.error('Erro ao buscar pacientes:', error);
+        console.error('Erro ao buscar usuários:', error);
         this.pacientes = [];
         this.pacientesFiltrados = [];
       }
@@ -120,9 +120,6 @@ export default {
       this.filtroNome = "";
       this.filtroCPF = "";
       this.pacientesFiltrados = [...this.pacientes];
-    },
-    verDetalhes(paciente) {
-      alert(`Detalhes de ${paciente.nome}`);
     },
     formatarCPF(cpf) {
       if (!cpf) return '-';
@@ -151,6 +148,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .meus-pacientes {

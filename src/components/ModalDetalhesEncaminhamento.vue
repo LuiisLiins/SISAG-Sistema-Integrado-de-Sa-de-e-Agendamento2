@@ -97,6 +97,8 @@
               {{ encaminhamento.observacoes }}
             </div>
           </div>
+          <p>Vá ao posto de saude solicitante buscar o encaminhamento.</p>
+
         </div>
 
         <div class="modal-footer">

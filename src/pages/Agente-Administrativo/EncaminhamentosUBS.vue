@@ -129,7 +129,7 @@ export default {
       filtroNome: "",
       filtroData: "",
       filtroEspecialidade: "",
-      filtroStatus: "",
+      filtroStatus: "Pendente",
       pacientes: [],
       pacientesFiltrados: [],
       mostrarModal: false,
@@ -141,17 +141,19 @@ export default {
     };
   },
   methods: {
+
     async buscarEncaminhamentos() {
       try {
         const res = await api.get('/encaminhamentos');
         this.pacientes = res.data || [];
-        this.pacientesFiltrados = [...this.pacientes];
+        this.filtrarPacientes(); // <-- aplica o filtro "Pendente" automaticamente
       } catch (error) {
         console.error('Erro ao buscar encaminhamentos:', error);
         this.pacientes = [];
         this.pacientesFiltrados = [];
       }
     },
+
     filtrarPacientes() {
       this.pacientesFiltrados = this.pacientes.filter(p => {
         const nomeMatch = !this.filtroNome || (p.usuario?.nome?.toLowerCase().includes(this.filtroNome.toLowerCase()));

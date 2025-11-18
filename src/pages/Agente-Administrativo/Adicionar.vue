@@ -57,7 +57,7 @@
 
         <div class="linha">
           <div class="form-group">
-            <label>Médico</label>
+            <label>Médico Solicitante</label>
             <input type="text" v-model="medico" placeholder="Digite o nome do médico" />
           </div>
         </div>
