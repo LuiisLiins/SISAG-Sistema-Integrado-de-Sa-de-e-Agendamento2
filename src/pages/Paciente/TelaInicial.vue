@@ -185,6 +185,10 @@
               <i class="fi fi-rr-check-double"></i>
               Marcar todas como lidas
             </button>
+            <button class="btn-limpar" @click="limparTodasNotificacoes" v-if="notificacoes.length > 0">
+              <i class="fi fi-rr-trash"></i>
+              Limpar Tudo
+            </button>
             <button class="btn-fechar" @click="fecharModalNotificacoes">
               <i class="fi fi-rr-cross"></i>
               Fechar
@@ -200,7 +204,7 @@
 import { onMounted, ref, computed } from 'vue';
 import userStore from "@/store/userStore.js";
 import api from '@/services/api';
-import { notificationStore, marcarComoLida as marcarLida, marcarTodasComoLidas as marcarTodasLidas } from '@/store/notificationStore';
+import { notificationStore, marcarComoLida as marcarLida, marcarTodasComoLidas as marcarTodasLidas, limparNotificacoes } from '@/store/notificationStore';
 
 export default {
   name: "TelaInicial",
@@ -337,6 +341,12 @@ export default {
       marcarTodasLidas();
     };
 
+    const limparTodasNotificacoes = () => {
+      if (confirm('Tem certeza que deseja limpar todas as notificações? Esta ação não pode ser desfeita.')) {
+        limparNotificacoes();
+      }
+    };
+
     const getTipoClass = (tipo) => {
       const classes = {
         'info': 'tipo-info',
@@ -402,6 +412,7 @@ export default {
       fecharModalNotificacoes,
       marcarComoLida,
       marcarTodasComoLidas,
+      limparTodasNotificacoes,
       getTipoClass,
       getTipoIcon,
       formatarDataHora
@@ -951,6 +962,7 @@ export default {
 }
 
 .btn-marcar-todas,
+.btn-limpar,
 .btn-fechar {
   border: none;
   border-radius: 8px;
@@ -973,6 +985,17 @@ export default {
   background-color: #ef6c00;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
+}
+
+.btn-limpar {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.btn-limpar:hover {
+  background-color: #c62828;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
 }
 
 .btn-fechar {
