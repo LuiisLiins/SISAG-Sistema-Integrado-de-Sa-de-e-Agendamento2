@@ -99,10 +99,37 @@
         </div>
 
         <!-- Bloco 3: notificações gerais -->
-        <div class="janela-notificacao">
-          <p><strong>Notificações:</strong></p>
-          <p>📢 Lembrete: Atualize seu cadastro!</p>
-          <p>📅 Novo exame disponível para agendamento.</p>
+        <div class="janela janela-notificacoes" @click="abrirModalNotificacoes" style="cursor: pointer;">
+          <div class="header-card">
+            <i class="fi fi-rr-bell"></i>
+            <p><strong>Notificações</strong></p>
+            <span v-if="notificacoesNaoLidas > 0" class="badge-notif">{{ notificacoesNaoLidas }}</span>
+          </div>
+          
+          <div v-if="notificacoes.length === 0" class="vazio-mini">
+            <i class="fi fi-rr-bell-slash"></i>
+            <span>Nenhuma notificação</span>
+          </div>
+          
+          <div v-else class="lista-notificacoes-preview">
+            <div 
+              v-for="notif in notificacoesPreview" 
+              :key="notif.id"
+              class="notificacao-item"
+            >
+              <i :class="getTipoIcon(notif.tipo)"></i>
+              <div class="notif-texto">
+                <span class="notif-titulo">{{ notif.titulo }}</span>
+                <span class="notif-msg">{{ notif.mensagem }}</span>
+              </div>
+              <div v-if="!notif.lida" class="badge-nova">Nova</div>
+            </div>
+            
+            <div v-if="notificacoes.length > 2" class="ver-mais">
+              <span>+{{ notificacoes.length - 2 }} notificação(ões)</span>
+              <i class="fi fi-rr-arrow-right"></i>
+            </div>
+          </div>
         </div>
 
         <!-- BLOCOS EXCLUSIVOS DO agente (ACS) -->
@@ -117,6 +144,55 @@
 
       </div>
     </div>
+
+    <!-- Modal de Notificações -->
+    <transition name="fade">
+      <div v-if="mostrarModalNotificacoes" class="modal-overlay" @click="fecharModalNotificacoes">
+        <div class="modal-container" @click.stop>
+          <div class="modal-header">
+            <h2><i class="fi fi-rr-bell"></i> Notificações</h2>
+            <i class="fi fi-rr-cross-small" @click="fecharModalNotificacoes"></i>
+          </div>
+
+          <div class="modal-content">
+            <div v-if="notificacoes.length === 0" class="sem-notificacoes">
+              <i class="fi fi-rr-bell-slash"></i>
+              <p>Você não tem notificações no momento</p>
+            </div>
+
+            <div v-else class="lista-notificacoes">
+              <div 
+                v-for="notif in notificacoes" 
+                :key="notif.id"
+                :class="['notificacao-card', notif.lida ? 'lida' : 'nao-lida']"
+                @click="marcarComoLida(notif.id)"
+              >
+                <div class="notif-icon" :class="getTipoClass(notif.tipo)">
+                  <i :class="getTipoIcon(notif.tipo)"></i>
+                </div>
+                <div class="notif-conteudo">
+                  <h4>{{ notif.titulo }}</h4>
+                  <p>{{ notif.mensagem }}</p>
+                  <span class="notif-data">{{ formatarDataHora(notif.data) }}</span>
+                </div>
+                <div v-if="!notif.lida" class="indicador-nova"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn-marcar-todas" @click="marcarTodasComoLidas" v-if="notificacoes.some(n => !n.lida)">
+              <i class="fi fi-rr-check-double"></i>
+              Marcar todas como lidas
+            </button>
+            <button class="btn-fechar" @click="fecharModalNotificacoes">
+              <i class="fi fi-rr-cross"></i>
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -124,6 +200,7 @@
 import { onMounted, ref, computed } from 'vue';
 import userStore from "@/store/userStore.js";
 import api from '@/services/api';
+import { notificationStore, marcarComoLida as marcarLida, marcarTodasComoLidas as marcarTodasLidas } from '@/store/notificationStore';
 
 export default {
   name: "TelaInicial",
@@ -133,6 +210,7 @@ export default {
     const carregandoEnc = ref(false);
     const proximaConsulta = ref(null);
     const carregandoConsulta = ref(false);
+    const mostrarModalNotificacoes = ref(false);
 
     const encaminhamentosLimitados = computed(() => {
       return encaminhamentos.value.slice(0, 3);
@@ -140,6 +218,25 @@ export default {
 
     const encaminhamentosPendentes = computed(() => {
       return encaminhamentos.value.filter(enc => enc.status === 'Pendente').length;
+    });
+
+    const notificacoes = computed(() => {
+      // Filtrar notificações do usuário atual ou notificações globais (sem usuario_id)
+      return notificationStore.notificacoes.filter(n => 
+        !n.usuario_id || n.usuario_id === userStore.id
+      );
+    });
+
+    const notificacoesCount = computed(() => {
+      return notificacoes.value.length;
+    });
+
+    const notificacoesNaoLidas = computed(() => {
+      return notificacoes.value.filter(n => !n.lida).length;
+    });
+
+    const notificacoesPreview = computed(() => {
+      return notificacoes.value.slice(0, 2);
     });
 
     const buscarEncaminhamentos = async () => {
@@ -221,6 +318,62 @@ export default {
       return classes[status] || 'status-pendente';
     };
 
+    const abrirModalNotificacoes = () => {
+      mostrarModalNotificacoes.value = true;
+    };
+
+    const fecharModalNotificacoes = () => {
+      mostrarModalNotificacoes.value = false;
+    };
+
+    const marcarComoLida = (id) => {
+      marcarLida(id);
+    };
+
+    const marcarTodasComoLidas = () => {
+      marcarTodasLidas();
+    };
+
+    const getTipoClass = (tipo) => {
+      const classes = {
+        'info': 'tipo-info',
+        'agendamento': 'tipo-agendamento',
+        'lembrete': 'tipo-lembrete',
+        'alerta': 'tipo-alerta'
+      };
+      return classes[tipo] || 'tipo-info';
+    };
+
+    const getTipoIcon = (tipo) => {
+      const icons = {
+        'info': 'fi fi-rr-info',
+        'agendamento': 'fi fi-rr-calendar',
+        'lembrete': 'fi fi-rr-bell',
+        'alerta': 'fi fi-rr-exclamation'
+      };
+      return icons[tipo] || 'fi fi-rr-info';
+    };
+
+    const formatarDataHora = (data) => {
+      if (!data) return '-';
+      const dataObj = new Date(data);
+      const hoje = new Date();
+      const ontem = new Date(hoje);
+      ontem.setDate(ontem.getDate() - 1);
+      
+      const diaData = dataObj.toDateString();
+      const diaHoje = hoje.toDateString();
+      const diaOntem = ontem.toDateString();
+      
+      if (diaData === diaHoje) {
+        return `Hoje às ${dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+      } else if (diaData === diaOntem) {
+        return `Ontem às ${dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+      } else {
+        return dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+    };
+
     onMounted(() => {
       buscarEncaminhamentos();
       buscarProximaConsulta();
@@ -236,7 +389,19 @@ export default {
       getStatusClass,
       formatarData,
       formatarHora,
-      encaminhamentosPendentes  
+      encaminhamentosPendentes,
+      mostrarModalNotificacoes,
+      notificacoes,
+      notificacoesCount,
+      notificacoesNaoLidas,
+      notificacoesPreview,
+      abrirModalNotificacoes,
+      fecharModalNotificacoes,
+      marcarComoLida,
+      marcarTodasComoLidas,
+      getTipoClass,
+      getTipoIcon,
+      formatarDataHora
     };
   }
 };
@@ -329,6 +494,7 @@ export default {
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 2px solid #90caf9;
+  position: relative;
 }
 
 .header-card i {
@@ -340,6 +506,19 @@ export default {
   margin: 0;
   font-size: 16px;
   color: #0d47a1;
+  flex: 1;
+}
+
+.badge-notif {
+  background: #f57c00;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  min-width: 24px;
+  text-align: center;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .janela-encaminhamentos {
@@ -461,6 +640,377 @@ export default {
   }
   50% {
     transform: translateX(5px);
+  }
+}
+
+.janela-notificacoes {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.janela-notificacoes:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(245, 124, 0, 0.2);
+}
+
+.lista-notificacoes-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notificacao-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  border-left: 3px solid #f57c00;
+  position: relative;
+}
+
+.notificacao-item i {
+  font-size: 18px;
+  color: #f57c00;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.notif-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.notif-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.notif-msg {
+  font-size: 12px;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+}
+
+.badge-nova {
+  background: #f57c00;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* Modal de Notificações */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+  color: white;
+  padding: 25px 30px;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-header i.fi-rr-cross-small {
+  cursor: pointer;
+  font-size: 28px;
+  transition: transform 0.2s;
+}
+
+.modal-header i.fi-rr-cross-small:hover {
+  transform: rotate(90deg);
+}
+
+.modal-content {
+  padding: 20px 30px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sem-notificacoes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.sem-notificacoes i {
+  font-size: 64px;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.sem-notificacoes p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.lista-notificacoes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notificacao-card {
+  display: flex;
+  gap: 15px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.notificacao-card:hover {
+  background: #f0f0f0;
+  transform: translateX(5px);
+}
+
+.notificacao-card.nao-lida {
+  background: #fff3e0;
+}
+
+.notificacao-card.lida {
+  opacity: 0.7;
+}
+
+.notif-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-icon i {
+  font-size: 20px;
+}
+
+.notif-icon.tipo-info {
+  background: #e3f2fd;
+  color: #1565c0;
+  border-left-color: #1565c0;
+}
+
+.notificacao-card.tipo-info {
+  border-left-color: #1565c0;
+}
+
+.notif-icon.tipo-agendamento {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.notificacao-card.tipo-agendamento {
+  border-left-color: #2e7d32;
+}
+
+.notif-icon.tipo-lembrete {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.notificacao-card.tipo-lembrete {
+  border-left-color: #f57c00;
+}
+
+.notif-icon.tipo-alerta {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.notificacao-card.tipo-alerta {
+  border-left-color: #d32f2f;
+}
+
+.notif-conteudo {
+  flex: 1;
+}
+
+.notif-conteudo h4 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.notif-conteudo p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.notif-data {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+.indicador-nova {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 10px;
+  height: 10px;
+  background: #f57c00;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+.modal-footer {
+  padding: 20px 30px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-marcar-todas,
+.btn-fechar {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-marcar-todas {
+  background-color: #f57c00;
+  color: white;
+}
+
+.btn-marcar-todas:hover {
+  background-color: #ef6c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
+}
+
+.btn-fechar {
+  background-color: #757575;
+  color: white;
+}
+
+.btn-fechar:hover {
+  background-color: #616161;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(97, 97, 97, 0.3);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .modal-container {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-content {
+    padding: 15px 20px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn-marcar-todas,
+  .btn-fechar {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

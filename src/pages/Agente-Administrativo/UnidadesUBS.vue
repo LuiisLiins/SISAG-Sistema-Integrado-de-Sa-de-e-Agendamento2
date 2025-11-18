@@ -64,6 +64,7 @@
 <script>
 import api from '@/services/api';
 import ModalEditaUnidade from '@/components/ModalEditaUnidade.vue';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "UnidadesUBS",
@@ -76,7 +77,8 @@ export default {
       pacientes: [],
       pacientesFiltrados: [],
       mostrarModal: false,
-      unidadeSelecionada: null
+      unidadeSelecionada: null,
+      notification: useNotification()
     };
   },
   methods: {
@@ -149,11 +151,11 @@ export default {
       if (confirmacao) {
         try {
           await api.delete(`/unidades-saude/${unidade.id}`);
-          alert('Unidade excluída com sucesso!');
+          this.notification.success('Unidade excluída com sucesso!');
           this.buscarPacientes(); // Recarregar lista
         } catch (error) {
           console.error('Erro ao excluir unidade:', error);
-          alert('Erro ao excluir unidade. Tente novamente.');
+          this.notification.error('Erro ao excluir unidade. Tente novamente.');
         }
       }
     }

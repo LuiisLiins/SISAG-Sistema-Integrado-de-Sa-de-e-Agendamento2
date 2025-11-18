@@ -160,6 +160,7 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: 'ModalEditaUsuario',
@@ -187,7 +188,8 @@ export default {
         unidade_saude_id: ''
       },
       carregando: false,
-      unidades: []
+      unidades: [],
+      notification: useNotification()
     };
   },
   watch: {
@@ -243,7 +245,7 @@ export default {
     },
     async salvar() {
       if (!this.usuarioEdit.nome || !this.usuarioEdit.email || !this.usuarioEdit.cpf || !this.usuarioEdit.tipo || !this.usuarioEdit.unidade_saude_id) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+        this.notification.warning('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
 
@@ -259,15 +261,15 @@ export default {
         };
 
         await api.put(`/usuarios/${usuarioParaEnviar.id}`, usuarioParaEnviar);
-        alert('Usuário atualizado com sucesso!');
+        this.notification.success('Usuário atualizado com sucesso!');
         this.$emit('atualizado');
         this.fechar();
       } catch (error) {
         console.error('Erro ao atualizar usuário:', error);
         if (error.response?.status === 422) {
-          alert('Dados inválidos. Verifique os campos e tente novamente.');
+          this.notification.error('Dados inválidos. Verifique os campos e tente novamente.');
         } else {
-          alert('Erro ao atualizar usuário. Tente novamente.');
+          this.notification.error('Erro ao atualizar usuário. Tente novamente.');
         }
       } finally {
         this.carregando = false;

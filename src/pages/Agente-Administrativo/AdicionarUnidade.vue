@@ -40,6 +40,7 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "AdicionarEncaminhamento",
@@ -51,13 +52,14 @@ export default {
         telefone: '',
         email: ''
       },
-      carregando: false
+      carregando: false,
+      notification: useNotification()
     };
   },
   methods: {
     async adicionarUnidade() {
       if (!this.unidade.nome || !this.unidade.endereco) {
-        alert('Por favor, preencha os campos obrigatórios (Nome e Endereço).');
+        this.notification.warning('Por favor, preencha os campos obrigatórios (Nome e Endereço).');
         return;
       }
 
@@ -67,7 +69,7 @@ export default {
         const response = await api.post('/unidades-saude', this.unidade);
         
         console.log('Unidade adicionada:', response.data);
-        alert('Unidade de saúde adicionada com sucesso!');
+        this.notification.success('Unidade de saúde adicionada com sucesso!');
         
         // Limpar formulário
         this.unidade = {
@@ -82,12 +84,12 @@ export default {
         
         if (error.response) {
           if (error.response.status === 422) {
-            alert('Dados inválidos. Verifique os campos e tente novamente.');
+            this.notification.error('Dados inválidos. Verifique os campos e tente novamente.');
           } else {
-            alert('Erro ao adicionar unidade. Tente novamente.');
+            this.notification.error('Erro ao adicionar unidade. Tente novamente.');
           }
         } else {
-          alert('Erro de conexão com o servidor.');
+          this.notification.error('Erro de conexão com o servidor.');
         }
       } finally {
         this.carregando = false;

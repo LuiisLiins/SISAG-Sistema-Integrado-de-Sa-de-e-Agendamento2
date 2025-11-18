@@ -138,7 +138,8 @@ export default {
             formatarData,
             verDetalhes,
             fecharModal,
-            getStatusClass
+            getStatusClass,
+            buscarAgendamentos
         };
     }
 }

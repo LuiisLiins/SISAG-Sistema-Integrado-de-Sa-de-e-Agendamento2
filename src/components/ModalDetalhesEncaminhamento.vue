@@ -195,6 +195,7 @@
 
 <script>
 import axios from 'axios';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: 'ModalDetalhesEncaminhamento',
@@ -210,7 +211,8 @@ export default {
   },
   data() {
     return {
-      dadosTransporte: null
+      dadosTransporte: null,
+      notification: useNotification()
     };
   },
   watch: {
@@ -239,12 +241,12 @@ export default {
           status: 'Confirmado'
         });
         
-        alert('Presença confirmada com sucesso!');
+        this.notification.success('Presença confirmada com sucesso!');
         this.$emit('atualizar');
         this.fechar();
       } catch (error) {
         console.error('Erro ao confirmar presença:', error);
-        alert('Erro ao confirmar presença. Tente novamente.');
+        this.notification.error('Erro ao confirmar presença. Tente novamente.');
       }
     },
     async solicitarTransporte() {
@@ -260,12 +262,12 @@ export default {
           precisa_transporte: true
         });
         
-        alert('Transporte solicitado com sucesso!');
+        this.notification.success('Transporte solicitado com sucesso!');
         this.$emit('atualizar');
         this.fechar();
       } catch (error) {
         console.error('Erro ao solicitar transporte:', error);
-        alert('Erro ao solicitar transporte. Tente novamente.');
+        this.notification.error('Erro ao solicitar transporte. Tente novamente.');
       }
     },
     async cancelarEncaminhamento() {
@@ -281,12 +283,12 @@ export default {
           status: 'Cancelado'
         });
         
-        alert('Encaminhamento cancelado com sucesso!');
+        this.notification.success('Encaminhamento cancelado com sucesso!');
         this.$emit('atualizar');
         this.fechar();
       } catch (error) {
         console.error('Erro ao cancelar encaminhamento:', error);
-        alert('Erro ao cancelar encaminhamento. Tente novamente.');
+        this.notification.error('Erro ao cancelar encaminhamento. Tente novamente.');
       }
     },
     formatarData(data) {

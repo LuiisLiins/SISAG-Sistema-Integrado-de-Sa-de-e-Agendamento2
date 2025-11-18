@@ -70,6 +70,7 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "TelaEncaminhamentosUsuario",
@@ -88,6 +89,7 @@ export default {
       ],
 
       encaminhamentos: [],
+      notification: useNotification()
     };
   },
 
@@ -105,7 +107,7 @@ export default {
       await this.buscarEncaminhamentos(usuarioId);
     } else {
       console.error('ID do usuário não fornecido na rota');
-      alert('Erro: Paciente não identificado.');
+      this.notification.error('Erro: Paciente não identificado.');
       this.$router.back();
     }
   },
@@ -117,7 +119,7 @@ export default {
         this.usuario = res.data;
       } catch (error) {
         console.error('Erro ao buscar dados do usuário:', error);
-        alert('Erro ao carregar dados do paciente.');
+        this.notification.error('Erro ao carregar dados do paciente.');
       }
     },
 

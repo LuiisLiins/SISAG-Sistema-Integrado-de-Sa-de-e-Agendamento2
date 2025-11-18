@@ -227,6 +227,8 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
+import { addNotification } from '@/store/notificationStore';
 
 export default {
   name: "RequisicoesTransporte",
@@ -251,7 +253,8 @@ export default {
         dataSaida: '',
         horarioSaida: '',
         observacoes: ''
-      }
+      },
+      notification: useNotification()
     };
   },
   computed: {
@@ -363,12 +366,20 @@ export default {
           });
         }
 
-        alert('Transporte cadastrado com sucesso!');
+        // Criar notificação para o paciente
+        addNotification({
+          tipo: 'lembrete',
+          titulo: 'Transporte Confirmado',
+          mensagem: `Seu transporte foi confirmado! Veículo: ${this.dadosTransporte.tipoTransporte}, Placa: ${this.dadosTransporte.placa}, Motorista: ${this.dadosTransporte.motorista}. Saída às ${this.dadosTransporte.horarioSaida} do dia ${this.formatarData(this.dadosTransporte.dataSaida)}.`,
+          usuario_id: this.encaminhamentoSelecionado.usuario_id
+        });
+
+        this.notification.success('Transporte cadastrado com sucesso!');
         this.fecharModalTransporte();
         this.buscarRequisicoes();
       } catch (error) {
         console.error('Erro ao cadastrar transporte:', error);
-        alert('Erro ao cadastrar transporte. Tente novamente.');
+        this.notification.error('Erro ao cadastrar transporte. Tente novamente.');
       } finally {
         this.carregando = false;
       }
@@ -388,7 +399,7 @@ export default {
         this.mostrarModalInfo = true;
       } catch (error) {
         console.error('Erro ao buscar informações do transporte:', error);
-        alert('Erro ao carregar informações do transporte.');
+        this.notification.error('Erro ao carregar informações do transporte.');
       }
     },
     fecharModalInfo() {

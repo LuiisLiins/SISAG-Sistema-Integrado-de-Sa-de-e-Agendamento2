@@ -172,6 +172,7 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
     name: "AdicionarUsuario",
@@ -198,7 +199,8 @@ export default {
                 unidade_saude_id: ''
             },
             carregando: false,
-            unidades: []
+            unidades: [],
+            notification: useNotification()
         };
     },
     mounted() {
@@ -247,7 +249,7 @@ export default {
         },
         async adicionarUsuario() {
             if (!this.usuario.nome || !this.usuario.email || !this.usuario.cpf || !this.usuario.senha || !this.usuario.tipo) {
-                alert('Por favor, preencha todos os campos obrigatórios (Nome, Email, CPF, Senha e Tipo).');
+                this.notification.warning('Por favor, preencha todos os campos obrigatórios (Nome, Email, CPF, Senha e Tipo).');
                 return;
             }
 
@@ -266,7 +268,7 @@ export default {
                 const response = await api.post('/usuarios', usuarioParaEnviar);
                 
                 console.log('Usuário adicionado:', response.data);
-                alert('Usuário adicionado com sucesso!');
+                this.notification.success('Usuário adicionado com sucesso!');
                 
                 this.usuario = {
                     nome: '',
@@ -294,14 +296,14 @@ export default {
                 
                 if (error.response) {
                     if (error.response.status === 422) {
-                        alert('Dados inválidos. Verifique os campos e tente novamente.');
+                        this.notification.error('Dados inválidos. Verifique os campos e tente novamente.');
                     } else if (error.response.status === 409) {
-                        alert('CPF ou Email já cadastrado.');
+                        this.notification.error('CPF ou Email já cadastrado.');
                     } else {
-                        alert('Erro ao adicionar usuário. Tente novamente.');
+                        this.notification.error('Erro ao adicionar usuário. Tente novamente.');
                     }
                 } else {
-                    alert('Erro de conexão com o servidor.');
+                    this.notification.error('Erro de conexão com o servidor.');
                 }
             } finally {
                 this.carregando = false;

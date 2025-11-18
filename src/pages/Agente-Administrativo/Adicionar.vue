@@ -143,6 +143,7 @@
 <script>
 import api from '@/services/api';
 import userStore from '@/store/userStore';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "AdicionarEncaminhamento",
@@ -161,7 +162,8 @@ export default {
       medico: '',
       carregando: false,
       unidades: [],
-      unidadeSaudeId: userStore.unidade_saude?.id || ''
+      unidadeSaudeId: userStore.unidade_saude?.id || '',
+      notification: useNotification()
     };
   },
   computed: {
@@ -249,12 +251,12 @@ export default {
     async criarEncaminhamento() {
       console.log(this.pacienteSelecionado);
       if (!this.pacienteSelecionado) {
-        alert('Por favor, selecione um paciente.');
+        this.notification.warning('Por favor, selecione um paciente.');
         return;
       }
 
       if (!this.prioridade || !this.especialidade) {
-        alert('Por favor, preencha a prioridade e especialidade.');
+        this.notification.warning('Por favor, preencha a prioridade e especialidade.');
         return;
       }
 
@@ -274,7 +276,7 @@ export default {
         };
 
         await api.post('/encaminhamentos', encaminhamento);
-        alert('Encaminhamento criado com sucesso!');
+        this.notification.success('Encaminhamento criado com sucesso!');
         
         // Limpar formulário
         this.pacienteSelecionado = null;
@@ -287,9 +289,9 @@ export default {
       } catch (error) {
         console.error('Erro ao criar encaminhamento:', error);
         if (error.response?.status === 422) {
-          alert('Dados inválidos. Verifique os campos e tente novamente.');
+          this.notification.error('Dados inválidos. Verifique os campos e tente novamente.');
         } else {
-          alert('Erro ao criar encaminhamento. Tente novamente.');
+          this.notification.error('Erro ao criar encaminhamento. Tente novamente.');
         }
       } finally {
         this.carregando = false;

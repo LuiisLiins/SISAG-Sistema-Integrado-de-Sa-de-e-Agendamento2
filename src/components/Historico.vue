@@ -135,7 +135,8 @@ export default {
             formatarData,
             verDetalhes,
             fecharModal,
-            getStatusClass
+            getStatusClass,
+            buscarHistorico
         };
     }
 };

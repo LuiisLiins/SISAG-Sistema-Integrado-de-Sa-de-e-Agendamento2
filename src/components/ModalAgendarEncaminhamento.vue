@@ -100,6 +100,8 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
+import { addNotification } from '@/store/notificationStore';
 
 export default {
   name: 'ModalAgendarEncaminhamento',
@@ -121,7 +123,8 @@ export default {
       enderecoAtendimento: '',
       medicoAtendimento: '',
       unidades: [],
-      carregando: false
+      carregando: false,
+      notification: useNotification()
     };
   },
   mounted() {
@@ -169,7 +172,7 @@ export default {
         this.unidades = response.data;
       } catch (error) {
         console.error('Erro ao buscar unidades:', error);
-        alert('Erro ao carregar unidades de saúde.');
+        this.notification.error('Erro ao carregar unidades de saúde.');
       }
     },
     preencherEndereco() {
@@ -186,13 +189,13 @@ export default {
     async agendar() {
       // Validação de campos obrigatórios
       if (!this.dataAgendamento || !this.horarioAtendimento || !this.unidadeAtendimento || !this.medicoAtendimento) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+        this.notification.warning('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
 
       // Validar se unidadeAtendimento é um objeto
       if (typeof this.unidadeAtendimento !== 'object' || !this.unidadeAtendimento.id) {
-        alert('Por favor, selecione uma unidade válida.');
+        this.notification.warning('Por favor, selecione uma unidade válida.');
         return;
       }
 
@@ -204,18 +207,27 @@ export default {
           horario_atendimento: this.horarioAtendimento,
           unidade_agendamento_id: this.unidadeAtendimento.id,
           endereco_atendimento: this.enderecoAtendimento,
-          medico_atendimento: this.medicoAtendimento,
+          medico_atendamento: this.medicoAtendimento,
           status: 'Agendado'
         });
-        alert('Agendamento realizado com sucesso!');
+        
+        // Criar notificação para o paciente
+        addNotification({
+          tipo: 'agendamento',
+          titulo: 'Consulta Agendada',
+          mensagem: `Sua consulta de ${this.encaminhamento.especialidade} foi agendada para ${this.formatarData(this.dataAgendamento)} às ${this.horarioAtendimento} em ${this.unidadeAtendimento.nome}.`,
+          usuario_id: this.encaminhamento.usuario_id
+        });
+        
+        this.notification.success('Agendamento realizado com sucesso!');
         this.$emit('agendado');
         this.fechar();
       } catch (error) {
         console.error('Erro ao agendar encaminhamento:', error);
         if (error.response?.status === 422) {
-          alert('Dados inválidos. Verifique os campos e tente novamente.');
+          this.notification.error('Dados inválidos. Verifique os campos e tente novamente.');
         } else {
-          alert('Erro ao agendar encaminhamento. Tente novamente.');
+          this.notification.error('Erro ao agendar encaminhamento. Tente novamente.');
         }
       } finally {
         this.carregando = false;

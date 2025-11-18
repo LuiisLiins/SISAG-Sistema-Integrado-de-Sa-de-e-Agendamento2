@@ -83,6 +83,7 @@
 
 <script>
 import api from '@/services/api';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: 'ModalEditaEncaminhamento',
@@ -108,7 +109,8 @@ export default {
         observacoes: ''
       },
       unidades: [],
-      carregando: false
+      carregando: false,
+      notification: useNotification()
     };
   },
   computed: {
@@ -158,7 +160,7 @@ export default {
     },
     async salvar() {
       if (!this.encaminhamentoEdit.data_solicitacao || !this.encaminhamentoEdit.unidade || !this.encaminhamentoEdit.nivel_urgencia || !this.encaminhamentoEdit.status) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+        this.notification.warning('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
 
@@ -173,15 +175,15 @@ export default {
           status: this.encaminhamentoEdit.status,
           observacoes: this.encaminhamentoEdit.observacoes
         });
-        alert('Encaminhamento atualizado com sucesso!');
+        this.notification.success('Encaminhamento atualizado com sucesso!');
         this.$emit('atualizado');
         this.fechar();
       } catch (error) {
         console.error('Erro ao atualizar encaminhamento:', error);
         if (error.response?.status === 422) {
-          alert('Dados inválidos. Verifique os campos e tente novamente.');
+          this.notification.error('Dados inválidos. Verifique os campos e tente novamente.');
         } else {
-          alert('Erro ao atualizar encaminhamento. Tente novamente.');
+          this.notification.error('Erro ao atualizar encaminhamento. Tente novamente.');
         }
       } finally {
         this.carregando = false;

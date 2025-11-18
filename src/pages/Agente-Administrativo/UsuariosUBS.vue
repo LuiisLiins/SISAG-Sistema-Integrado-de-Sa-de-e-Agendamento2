@@ -85,6 +85,7 @@
 <script>
 import api from '@/services/api';
 import ModalEditaUsuario from '@/components/ModalEditaUsuario.vue';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "MeusPacientes",
@@ -99,7 +100,8 @@ export default {
       pacientes: [],
       pacientesFiltrados: [],
       mostrarModal: false,
-      usuarioSelecionado: null
+      usuarioSelecionado: null,
+      notification: useNotification()
     };
   },
   methods: {
@@ -187,11 +189,11 @@ export default {
       if (confirmacao) {
         try {
           await api.delete(`/usuarios/${usuario.id}`);
-          alert('Usuário excluído com sucesso!');
+          this.notification.success('Usuário excluído com sucesso!');
           this.buscarPacientes(); // Recarregar lista
         } catch (error) {
           console.error('Erro ao excluir usuário:', error);
-          alert('Erro ao excluir usuário. Tente novamente.');
+          this.notification.error('Erro ao excluir usuário. Tente novamente.');
         }
       }
     }

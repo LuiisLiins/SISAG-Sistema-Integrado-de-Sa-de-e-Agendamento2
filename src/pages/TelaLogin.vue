@@ -53,6 +53,7 @@
 <script>
 import api from '@/services/api';
 import userStore, { login } from '@/store/userStore';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "TelaLogin",
@@ -62,7 +63,8 @@ export default {
       senha: "",
       lembrar: false,
       carregando: false,
-      erro: ""
+      erro: "",
+      notification: useNotification()
     };
   },
   methods: {
@@ -97,7 +99,7 @@ export default {
     async entrar() {
       // Validação básica
       if (this.cpf === "" || this.senha === "") {
-        alert("Por favor, preencha CPF e senha.");
+        this.notification.warning("Por favor, preencha CPF e senha.");
         return;
       }
 
@@ -135,7 +137,7 @@ export default {
           });
           
           // Mensagem de sucesso
-          alert('Login realizado com sucesso!');
+          this.notification.success('Login realizado com sucesso!');
           
           // Redireciona para o menu inicial
           await this.$router.push('/Menu/inicial');
@@ -148,18 +150,18 @@ export default {
           // Erro de resposta da API
           if (error.response.status === 401) {
             this.erro = "CPF ou senha incorretos.";
-            alert("CPF ou senha incorretos.");
+            this.notification.error("CPF ou senha incorretos.");
           } else if (error.response.status === 404) {
             this.erro = "Usuário não encontrado.";
-            alert("Usuário não encontrado.");
+            this.notification.error("Usuário não encontrado.");
           } else {
             this.erro = "Erro ao fazer login. Tente novamente.";
-            alert("Erro ao fazer login. Tente novamente.");
+            this.notification.error("Erro ao fazer login. Tente novamente.");
           }
         } else {
           // Erro de conexão
           this.erro = "Erro de conexão com o servidor.";
-          alert("Erro de conexão com o servidor.");
+          this.notification.error("Erro de conexão com o servidor.");
         }
       } finally {
         this.carregando = false;

@@ -117,6 +117,7 @@ import userStore from '@/store/userStore';
 import ModalEditaEncaminhamento from '@/components/ModalEditaEncaminhamento.vue';
 import ModalAgendarEncaminhamento from '@/components/ModalAgendarEncaminhamento.vue';
 import ModalInfoEncaminhamento from '@/components/ModalInfoEncaminhamento.vue';
+import { useNotification } from '@/composables/useNotification';
 
 export default {
   name: "MeusPacientes",
@@ -140,6 +141,7 @@ export default {
       encaminhamentoParaAgendar: null,
       mostrarModalInfo: false,
       encaminhamentoInfo: null,
+      notification: useNotification()
     };
   },
   methods: {
@@ -242,11 +244,11 @@ export default {
       if (confirmacao) {
         try {
           await api.delete(`/encaminhamentos/${encaminhamento.id}`);
-          alert('Encaminhamento excluído com sucesso!');
+          this.notification.success('Encaminhamento excluído com sucesso!');
           this.buscarEncaminhamentos();
         } catch (error) {
           console.error('Erro ao excluir encaminhamento:', error);
-          alert('Erro ao excluir encaminhamento. Tente novamente.');
+          this.notification.error('Erro ao excluir encaminhamento. Tente novamente.');
         }
       }
     }
