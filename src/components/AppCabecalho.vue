@@ -10,7 +10,10 @@
       <!-- Usuário + Logout alinhados na base -->
       <div class="usuario-info">
         <p class="nome-usuario">{{ primeiroEUltimoNome }} | {{ userStore.tipo || 'Tipo' }}</p>
-        <button class="btn-logout" @click="fazerLogout">Logout</button>
+        <button class="btn-logout" @click="fazerLogout">
+          <i class="fi fi-rr-sign-out-alt"></i>
+          Sair
+        </button>
       </div>
     </div>
   </header>
@@ -104,17 +107,30 @@ export default {
 }
 
 .btn-logout {
-  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
   background-color: #e74c3c;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
   align-self: center; /* botão verticalmente centralizado */
 }
 
 .btn-logout:hover {
   background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+.btn-logout i {
+  font-size: 16px;
 }
 
 /* ===== RESPONSIVIDADE ===== */

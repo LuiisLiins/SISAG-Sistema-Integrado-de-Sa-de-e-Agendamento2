@@ -53,7 +53,7 @@
               <i class="fi fi-rr-user-md"></i>
               <div>
                 <span class="label">Médico</span>
-                <span class="valor">{{ proximaConsulta.medico }}</span>
+                <span class="valor">{{ proximaConsulta.medico_agendado }}</span>
               </div>
             </div>
           </div>

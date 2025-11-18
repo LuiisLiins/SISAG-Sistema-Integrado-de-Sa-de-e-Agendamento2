@@ -17,7 +17,7 @@
                 <div class="linha">
           <div class="form-group">
             <label>Unidade de Saúde</label>
-            <select v-model="unidadeSaudeId" required>
+            <select v-model="unidadeSaudeId" required disabled>
               <option value="">Selecione uma unidade</option>
               <option v-for="unidade in unidades" :key="unidade.id" :value="unidade.id">
                 {{ unidade.nome }}
@@ -76,12 +76,6 @@
           </div>
         </div>
 
-        <div class="form-group-checkbox">
-          <label>
-            <input type="checkbox" v-model="precisaTransporte" />
-            Precisa de transporte?
-          </label>
-        </div>
 
                 <div class="linha">
           <div class="form-group">
@@ -148,11 +142,13 @@
 
 <script>
 import api from '@/services/api';
+import userStore from '@/store/userStore';
 
 export default {
   name: "AdicionarEncaminhamento",
   data() {
     return {
+      userStore,
       mostrarModal: false,
       buscaNome: '',
       buscaCPF: '',
@@ -160,13 +156,12 @@ export default {
       pacientesFiltrados: [],
       pacienteSelecionado: null,
       telefone: '',
-      precisaTransporte: false,
       prioridade: '',
       especialidade: '',
       medico: '',
       carregando: false,
       unidades: [],
-      unidadeSaudeId: ''
+      unidadeSaudeId: userStore.unidade_saude?.id || ''
     };
   },
   computed: {
@@ -273,7 +268,6 @@ export default {
           especialidade: this.especialidade,
           medico: this.medico,
           telefone: this.telefone.replace(/\D/g, ''),
-          precisa_transporte: this.precisaTransporte,
           observacoes: this.observacoesGerais,
           dt_agendamento: this.dataAgendamento,
           dt_solicitacao: this.dataSolicitacao
@@ -289,7 +283,6 @@ export default {
         this.especialidade = '';
         this.medico = '';
         this.telefone = '';
-        this.precisaTransporte = false;
         
       } catch (error) {
         console.error('Erro ao criar encaminhamento:', error);
@@ -391,6 +384,13 @@ select {
 input:focus,
 select:focus {
   border-color: #1565c0;
+}
+
+input:disabled,
+select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #666;
 }
 
 .form-group-checkbox {

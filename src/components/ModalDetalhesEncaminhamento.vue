@@ -34,7 +34,7 @@
               
               <div class="info-item" v-if="encaminhamento.medico">
                 <label>Médico:</label>
-                <span>{{ encaminhamento.medico }}</span>
+                <span>{{ encaminhamento.medico_agendado }}</span>
               </div>
             </div>
           </div>
@@ -52,41 +52,102 @@
               <div class="info-item">
                 <label>Data do Agendamento:</label>
                 <span v-if="encaminhamento.data_agendamento" class="destaque">
-                  {{ formatarDataHora(encaminhamento.data_agendamento) }}
+                  {{ formatarData(encaminhamento.data_agendamento) }}
                 </span>
                 <span v-else class="aguardando">Aguardando agendamento</span>
+              </div>
+              
+              <div class="info-item" v-if="encaminhamento.horario_atendimento">
+                <label>Horário:</label>
+                <span class="destaque">{{ encaminhamento.horario_atendimento }}</span>
               </div>
             </div>
           </div>
 
           <!-- Local -->
-          <div class="info-section" v-if="encaminhamento.unidade">
+          <div class="info-section">
             <h3><i class="fi fi-rr-hospital"></i> Local do Atendimento</h3>
             
-            <div class="info-grid">
+            <div v-if="encaminhamento.status === 'Pendente'" class="alerta-info">
+              <i class="fi fi-rr-info"></i>
+              <span>A definir - Aguardando agendamento</span>
+            </div>
+            
+            <div v-else-if="encaminhamento.unidade" class="info-grid">
               <div class="info-item full">
                 <label>Unidade de Saúde:</label>
-                <span>{{ encaminhamento.unidade.nome }}</span>
+                <span>{{ encaminhamento.unidade_agendamento.nome }}</span>
               </div>
               
-              <div class="info-item" v-if="encaminhamento.unidade.endereco">
+              <div class="info-item" v-if="encaminhamento.unidade_agendamento.endereco">
                 <label>Endereço:</label>
-                <span>{{ encaminhamento.unidade.endereco }}</span>
-              </div>
-              
-              <div class="info-item" v-if="encaminhamento.unidade.telefone">
-                <label>Telefone:</label>
-                <span>{{ formatarTelefone(encaminhamento.unidade.telefone) }}</span>
+                <span>{{ encaminhamento.unidade_agendamento.endereco }}</span>
               </div>
             </div>
           </div>
 
           <!-- Transporte -->
-          <div class="info-section" v-if="encaminhamento.precisa_transporte">
+          <div class="info-section">
             <h3><i class="fi fi-rr-bus"></i> Transporte</h3>
-            <div class="alerta-info">
+            
+            <!-- Se tem transporte cadastrado -->
+            <div v-if="encaminhamento.transporte_id && dadosTransporte" class="info-transporte">
+              <div class="alerta-info">
+                <i class="fi fi-rr-check-circle"></i>
+                <span>Transporte confirmado e agendado</span>
+              </div>
+              
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>Tipo de Veículo:</label>
+                  <span>{{ dadosTransporte.tipo_veiculo || '-' }}</span>
+                </div>
+                
+                <div class="info-item">
+                  <label>Placa do Veículo:</label>
+                  <span>{{ dadosTransporte.placa_veiculo || '-' }}</span>
+                </div>
+                
+                <div class="info-item">
+                  <label>Motorista:</label>
+                  <span>{{ dadosTransporte.motorista || '-' }}</span>
+                </div>
+                
+                <div class="info-item">
+                  <label>Data de Saída:</label>
+                  <span class="destaque">{{ formatarData(dadosTransporte.data_saida) }}</span>
+                </div>
+                
+                <div class="info-item">
+                  <label>Horário de Saída:</label>
+                  <span class="destaque">{{ dadosTransporte.horario_saida || '-' }}</span>
+                </div>
+                
+                <div class="info-item full" v-if="dadosTransporte.observacoes">
+                  <label>Observações do Transporte:</label>
+                  <span>{{ dadosTransporte.observacoes }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Se solicitou transporte mas ainda não foi cadastrado -->
+            <div v-else-if="encaminhamento.precisa_transporte" class="alerta-info">
               <i class="fi fi-rr-info"></i>
-              <span>Transporte solicitado para esta consulta</span>
+              <span>Transporte solicitado - Aguardando confirmação</span>
+            </div>
+            
+            <!-- Se pode solicitar transporte -->
+            <div v-else-if="encaminhamento?.status === 'Agendado'">
+              <button class="btn-solicitar-transporte" @click="solicitarTransporte">
+                <i class="fi fi-rr-bus"></i>
+                Preciso de Transporte
+              </button>
+            </div>
+            
+            <!-- Se ainda não está agendado -->
+            <div v-else class="alerta-info-neutral">
+              <i class="fi fi-rr-info"></i>
+              <span>Disponível após agendamento</span>
             </div>
           </div>
 
@@ -147,6 +208,20 @@ export default {
       default: null
     }
   },
+  data() {
+    return {
+      dadosTransporte: null
+    };
+  },
+  watch: {
+    encaminhamento(novoEncaminhamento) {
+      if (novoEncaminhamento?.transporte) {
+        this.dadosTransporte = novoEncaminhamento.transporte;
+      } else {
+        this.dadosTransporte = null;
+      }
+    }
+  },
   methods: {
     fechar() {
       this.$emit('fechar');
@@ -170,6 +245,27 @@ export default {
       } catch (error) {
         console.error('Erro ao confirmar presença:', error);
         alert('Erro ao confirmar presença. Tente novamente.');
+      }
+    },
+    async solicitarTransporte() {
+      if (!this.encaminhamento?.id) return;
+      
+      if (!confirm('Deseja solicitar transporte para esta consulta?')) {
+        return;
+      }
+
+      try {
+        await axios.put(`http://localhost:8000/api/encaminhamentos/${this.encaminhamento.id}`, {
+          ...this.encaminhamento,
+          precisa_transporte: true
+        });
+        
+        alert('Transporte solicitado com sucesso!');
+        this.$emit('atualizar');
+        this.fechar();
+      } catch (error) {
+        console.error('Erro ao solicitar transporte:', error);
+        alert('Erro ao solicitar transporte. Tente novamente.');
       }
     },
     async cancelarEncaminhamento() {
@@ -447,6 +543,32 @@ export default {
   font-weight: 500;
 }
 
+.alerta-info-neutral {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-left: 4px solid #9e9e9e;
+  border-radius: 8px;
+}
+
+.alerta-info-neutral i {
+  font-size: 24px;
+  color: #757575;
+}
+
+.alerta-info-neutral span {
+  color: #616161;
+  font-weight: 500;
+}
+
+.info-transporte {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
 .observacoes-box {
   background: white;
   padding: 15px;
@@ -455,6 +577,33 @@ export default {
   color: #333;
   line-height: 1.6;
   white-space: pre-wrap;
+}
+
+.btn-solicitar-transporte {
+  width: 100%;
+  background-color: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-solicitar-transporte:hover {
+  background-color: #0d47a1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.3);
+}
+
+.btn-solicitar-transporte i {
+  font-size: 18px;
 }
 
 .modal-footer {

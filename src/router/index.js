@@ -23,6 +23,7 @@ import HistoricoEncaminhamentos from '@/components/Historico.vue'
 import UsuariosUBS from '@/pages/Agente-Administrativo/UsuariosUBS.vue'
 import AdicionarUnidade from '@/pages/Agente-Administrativo/AdicionarUnidade.vue'
 import UnidadesUBS from '@/pages/Agente-Administrativo/UnidadesUBS.vue'
+import RequisicoesTransporte from '@/pages/Agente-Administrativo/RequisicoesTransporte.vue'
 
 const routes = [
   {
@@ -54,7 +55,8 @@ const routes = [
     { path: 'usuarios-ubs', name: 'UsuariosUBS', component: UsuariosUBS, meta: { title: 'Usuários da UBS' } },
     { path: 'unidades-saude', name: 'UnidadesSaude', component: UnidadesUBS, meta: { title: 'Unidades de Saúde' } },
     { path: 'meus-pacientes', name: 'MeusPacientes', component: MeusPacientes, meta: { title: 'Meus Pacientes' } },
-    { path: 'encaminhamentos-ubs', name: 'EncaminhamentosUBS', component: EncaminhamentosUBS, meta: { title: 'Encaminhamentos UBS' } }
+    { path: 'encaminhamentos-ubs', name: 'EncaminhamentosUBS', component: EncaminhamentosUBS, meta: { title: 'Encaminhamentos UBS' } },
+    { path: 'transportes', name: 'RequisicoesTransporte', component: RequisicoesTransporte, meta: { title: 'Requisições de Transporte' } }
   ]
 },
   {

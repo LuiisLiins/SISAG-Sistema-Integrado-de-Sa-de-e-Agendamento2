@@ -51,11 +51,38 @@
 
           <!-- Formulário de Agendamento -->
           <form class="form-section" @submit.prevent="agendar">
-            <h3>Data do Agendamento</h3>
+            <h3>Dados do Agendamento</h3>
             
             <div class="form-group">
-              <label>Selecione a data da consulta *</label>
-              <input type="date" v-model="dataAgendamento" required :min="dataMinima" />
+              <label>Unidade de Atendimento *</label>
+              <select v-model="unidadeAtendimento" required @change="preencherEndereco">
+                <option value="" disabled>Selecione uma unidade</option>
+                <option v-for="unidade in unidades" :key="unidade.id" :value="unidade">
+                  {{ unidade.nome }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Endereço *</label>
+              <input type="text" v-model="enderecoAtendimento" required placeholder="Endereço completo da unidade" readonly />
+            </div>
+
+            <div class="form-group">
+              <label>Médico *</label>
+              <input type="text" v-model="medicoAtendimento" required placeholder="Nome do médico" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Data da Consulta *</label>
+                <input type="date" v-model="dataAgendamento" required :min="dataMinima" />
+              </div>
+
+              <div class="form-group">
+                <label>Horário de Atendimento *</label>
+                <input type="time" v-model="horarioAtendimento" required />
+              </div>
             </div>
 
             <div class="modal-acoes">
@@ -89,8 +116,16 @@ export default {
   data() {
     return {
       dataAgendamento: '',
+      horarioAtendimento: '',
+      unidadeAtendimento: '',
+      enderecoAtendimento: '',
+      medicoAtendimento: '',
+      unidades: [],
       carregando: false
     };
+  },
+  mounted() {
+    this.buscarUnidades();
   },
   computed: {
     dataMinima() {
@@ -104,16 +139,44 @@ export default {
   watch: {
     mostrar(valor) {
       if (valor) {
-        // Se já tem data agendada, preencher o campo
+        // Se já tem data agendada, preencher os campos
         if (this.encaminhamento?.data_agendamento) {
           this.dataAgendamento = this.encaminhamento.data_agendamento.split('T')[0];
         } else {
           this.dataAgendamento = '';
         }
+        
+        // Preencher outros campos se existirem
+        this.horarioAtendimento = this.encaminhamento?.horario_atendimento || '';
+        this.medicoAtendimento = this.encaminhamento?.medico_atendimento || '';
+        this.enderecoAtendimento = this.encaminhamento?.endereco_atendimento || '';
+        
+        // Preencher unidade se existir ID
+        if (this.encaminhamento?.unidade_atendimento_id && this.unidades.length > 0) {
+          this.unidadeAtendimento = this.unidades.find(
+            u => u.id === this.encaminhamento.unidade_atendimento_id
+          ) || '';
+        } else {
+          this.unidadeAtendimento = '';
+        }
       }
     }
   },
   methods: {
+    async buscarUnidades() {
+      try {
+        const response = await api.get('/unidades-saude');
+        this.unidades = response.data;
+      } catch (error) {
+        console.error('Erro ao buscar unidades:', error);
+        alert('Erro ao carregar unidades de saúde.');
+      }
+    },
+    preencherEndereco() {
+      if (this.unidadeAtendimento && typeof this.unidadeAtendimento === 'object') {
+        this.enderecoAtendimento = this.unidadeAtendimento.endereco || '';
+      }
+    },
     formatarData(data) {
       if (!data) return '-';
       const dataLimpa = data.split('T')[0];
@@ -121,8 +184,15 @@ export default {
       return `${dia}/${mes}/${ano}`;
     },
     async agendar() {
-      if (!this.dataAgendamento) {
-        alert('Por favor, selecione uma data para o agendamento.');
+      // Validação de campos obrigatórios
+      if (!this.dataAgendamento || !this.horarioAtendimento || !this.unidadeAtendimento || !this.medicoAtendimento) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+
+      // Validar se unidadeAtendimento é um objeto
+      if (typeof this.unidadeAtendimento !== 'object' || !this.unidadeAtendimento.id) {
+        alert('Por favor, selecione uma unidade válida.');
         return;
       }
 
@@ -130,8 +200,11 @@ export default {
 
       try {
         await api.put(`/encaminhamentos/${this.encaminhamento.id}`, {
-          ...this.encaminhamento,
           dt_agendamento: this.dataAgendamento,
+          horario_atendimento: this.horarioAtendimento,
+          unidade_agendamento_id: this.unidadeAtendimento.id,
+          endereco_atendimento: this.enderecoAtendimento,
+          medico_atendimento: this.medicoAtendimento,
           status: 'Agendado'
         });
         alert('Agendamento realizado com sucesso!');
@@ -140,7 +213,7 @@ export default {
       } catch (error) {
         console.error('Erro ao agendar encaminhamento:', error);
         if (error.response?.status === 422) {
-          alert('Dados inválidos. Verifique a data e tente novamente.');
+          alert('Dados inválidos. Verifique os campos e tente novamente.');
         } else {
           alert('Erro ao agendar encaminhamento. Tente novamente.');
         }
@@ -150,6 +223,10 @@ export default {
     },
     fechar() {
       this.dataAgendamento = '';
+      this.horarioAtendimento = '';
+      this.unidadeAtendimento = '';
+      this.enderecoAtendimento = '';
+      this.medicoAtendimento = '';
       this.$emit('fechar');
     }
   }
@@ -286,7 +363,8 @@ export default {
   font-size: 14px;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 12px;
   border: 1px solid #bbdefb;
   border-radius: 6px;
@@ -295,8 +373,28 @@ export default {
   transition: border-color 0.3s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   border-color: #1565c0;
+}
+
+.form-group select {
+  cursor: pointer;
+  background-color: white;
+}
+
+.form-group input[readonly] {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
 }
 
 .modal-acoes {
@@ -367,6 +465,10 @@ export default {
   .info-linha {
     flex-direction: column;
     gap: 12px;
+  }
+  
+  .form-row {
+    flex-direction: column;
   }
   
   .modal-container {

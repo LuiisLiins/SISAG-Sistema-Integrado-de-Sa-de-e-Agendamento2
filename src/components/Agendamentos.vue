@@ -25,7 +25,7 @@
                 <div class="card-body">
                     <div class="info-item" v-if="agendamento.unidade">
                         <i class="fi fi-rr-hospital"></i>
-                        <span>{{ agendamento.unidade.nome }}</span>
+                        <span>{{ agendamento.unidade_agendamento.nome }}</span>
                     </div>
                     
                     <div class="info-item" v-if="agendamento.data_agendamento">
@@ -40,7 +40,7 @@
                     
                     <div class="info-item" v-if="agendamento.medico">
                         <i class="fi fi-rr-user-md"></i>
-                        <span>{{ agendamento.medico }}</span>
+                        <span>{{ agendamento.medico_agendado }}</span>
                     </div>
                 </div>
                 

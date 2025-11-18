@@ -113,6 +113,7 @@
 
 <script>
 import api from '@/services/api';
+import userStore from '@/store/userStore';
 import ModalEditaEncaminhamento from '@/components/ModalEditaEncaminhamento.vue';
 import ModalAgendarEncaminhamento from '@/components/ModalAgendarEncaminhamento.vue';
 import ModalInfoEncaminhamento from '@/components/ModalInfoEncaminhamento.vue';
@@ -126,6 +127,7 @@ export default {
   },
   data() {
     return {
+      userStore,
       filtroNome: "",
       filtroData: "",
       filtroEspecialidade: "",
@@ -145,7 +147,24 @@ export default {
     async buscarEncaminhamentos() {
       try {
         const res = await api.get('/encaminhamentos');
-        this.pacientes = res.data || [];
+        console.log('Todos os encaminhamentos:', res.data);
+        console.log('Unidade do usuário:', userStore.unidade_saude);
+        
+        // Filtrar apenas encaminhamentos da unidade do usuário
+        const unidadeId = userStore.unidade_saude?.id;
+        console.log('ID da unidade:', unidadeId);
+        
+        if (unidadeId) {
+          this.pacientes = (res.data || []).filter(enc => {
+            const encUnidadeId = enc.unidade_id || enc.unidade?.id;
+            console.log('Comparando:', encUnidadeId, '===', unidadeId);
+            return encUnidadeId === unidadeId;
+          });
+        } else {
+          this.pacientes = res.data || [];
+        }
+        
+        console.log('Encaminhamentos filtrados:', this.pacientes);
         this.filtrarPacientes(); // <-- aplica o filtro "Pendente" automaticamente
       } catch (error) {
         console.error('Erro ao buscar encaminhamentos:', error);

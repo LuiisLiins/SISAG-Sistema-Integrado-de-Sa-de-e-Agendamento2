@@ -76,6 +76,26 @@
           </div>
         </div>
       </transition>
+
+      <div class="icone" v-if="userStore.tipo === 'agente' || userStore.tipo === 'admin'" @click="$router.push('/menu/transportes')">
+        <i class="fi fi-rr-bus"></i>
+      </div>
+
+      <!-- Menu dropdown para transporte -->
+      <transition name="fade">
+        <div v-if="mostrarMenuTransporte" class="menu-dropdown" @click="fecharMenuTransporte">
+          <div class="dropdown-opcoes" @click.stop>
+            <div class="dropdown-header">
+              <span>Transporte</span>
+              <i class="fi fi-rr-cross-small" @click="fecharMenuTransporte"></i>
+            </div>
+            <div class="dropdown-item" @click="irParaTransporte('/menu/transportes')">
+              <i class="fi fi-rr-list"></i>
+              <span>Requisições de Transporte</span>
+            </div>
+          </div>
+        </div>
+      </transition>
       
     </div>
   </main>
@@ -93,13 +113,15 @@ export default {
       logo2,
       userStore,
       mostrarMenuAdicionar: false,
-      mostrarMenuEncaminhamentos: false
+      mostrarMenuEncaminhamentos: false,
+      mostrarMenuTransporte: false
     }
   },
   methods: {
     toggleMenuAdicionar() {
       this.mostrarMenuAdicionar = !this.mostrarMenuAdicionar;
       this.mostrarMenuEncaminhamentos = false;
+      this.mostrarMenuTransporte = false;
     },
     fecharMenu() {
       this.mostrarMenuAdicionar = false;
@@ -111,12 +133,25 @@ export default {
     toggleMenuEncaminhamentos() {
       this.mostrarMenuEncaminhamentos = !this.mostrarMenuEncaminhamentos;
       this.mostrarMenuAdicionar = false;
+      this.mostrarMenuTransporte = false;
     },
     fecharMenuEncaminhamentos() {
       this.mostrarMenuEncaminhamentos = false;
     },
     irParaEncaminhamentos(rota) {
       this.mostrarMenuEncaminhamentos = false;
+      this.$router.push(rota);
+    },
+    toggleMenuTransporte() {
+      this.mostrarMenuTransporte = !this.mostrarMenuTransporte;
+      this.mostrarMenuAdicionar = false;
+      this.mostrarMenuEncaminhamentos = false;
+    },
+    fecharMenuTransporte() {
+      this.mostrarMenuTransporte = false;
+    },
+    irParaTransporte(rota) {
+      this.mostrarMenuTransporte = false;
       this.$router.push(rota);
     }
   }
