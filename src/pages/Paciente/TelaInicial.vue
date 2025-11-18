@@ -207,6 +207,7 @@ export default {
 
   setup() {
     const encaminhamentos = ref([]);
+    const todosEncaminhamentospendentes = ref([]);
     const carregandoEnc = ref(false);
     const proximaConsulta = ref(null);
     const carregandoConsulta = ref(false);
@@ -217,7 +218,7 @@ export default {
     });
 
     const encaminhamentosPendentes = computed(() => {
-      return encaminhamentos.value.filter(enc => enc.status === 'Pendente').length;
+      return todosEncaminhamentospendentes.value.filter(enc => enc.status === 'Pendente').length;
     });
 
     const notificacoes = computed(() => {
@@ -244,6 +245,8 @@ export default {
       try {
         const res = await api.get('/encaminhamentos');
         const todosEncaminhamentos = res.data || [];
+
+        todosEncaminhamentospendentes.value = todosEncaminhamentos;
         
         // Filtrar encaminhamentos do usuário logado com status Pendente ou Agendado
         encaminhamentos.value = todosEncaminhamentos.filter(enc => {
