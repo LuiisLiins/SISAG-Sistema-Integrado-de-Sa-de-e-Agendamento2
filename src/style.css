@@ -8,28 +8,7 @@
   font-family: "Nunito", sans-serif;
 }
 
-/* ==================== CABEÇALHO ==================== */
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #1565c0;
-  color: #fff;
-  padding: 0 60px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  z-index: 100;
-}
 
-.logo-cabecalho {
-  width: 300px;
-  height: auto;
-  margin: 10px;
-}
 
 /* ==================== MENU LATERAL ==================== */
 .menu-lateral {

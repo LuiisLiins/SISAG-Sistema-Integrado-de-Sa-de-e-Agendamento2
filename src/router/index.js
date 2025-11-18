@@ -31,63 +31,32 @@ const routes = [
     component: Login
   },
   {
-    path: '/menu',
-    component: MenuCabe,
-    children: [
-      { path: '', redirect: '/menu/inicial' },
-      { path: 'inicial', name: 'TelaInicial', component: TelaInicial },
-      {
-        path: 'agendamentos',
-        name: 'TelaAgendamentos',
-        component: TelaAgendamentos,
-        children: [
-          { path: '', redirect: '/menu/agendamentos/lista' },
-          { path: 'lista', name: 'Agendamentos', component: ListaAgendamentos },
-          { path: 'historico', name: 'Historico', component: HistoricoEncaminhamentos }
-        ]
-      },
-      {
-        path: 'cadastro',
-        name: 'TelaCadastro',
-        component: TelaCadastro
-      },
-      {
-        path: 'adicionar',
-        name: 'AdicionarEncaminhamento',
-        component: AdicionarEncaminhamento
-      },
-                  {
-        path: 'adicionar-usuario',
-        name: 'AdicionarUsuario',
-        component: AdicionarUsuario
-      },
-            {
-        path: 'adicionar-unidade',
-        name: 'AdicionarUnidade',
-        component: AdicionarUnidade
-      },
-                  {
-        path: 'usuarios-ubs',
-        name: 'UsuariosUBS',
-        component: UsuariosUBS
-      },
-                        {
-        path: 'unidades-saude',
-        name: 'UnidadesSaude',
-        component: UnidadesUBS
-      },
-      {
-        path: 'meus-pacientes',
-        name: 'MeusPacientes',
-        component: MeusPacientes
-      },
-      {
-        path: 'encaminhamentos-ubs',
-        name: 'EncaminhamentosUBS',
-        component: EncaminhamentosUBS
-      }
-    ]
-  },
+  path: '/menu',
+  component: MenuCabe,
+  children: [
+    { path: '', redirect: '/menu/inicial' },
+    { path: 'inicial', name: 'TelaInicial', component: TelaInicial, meta: { title: 'Início' } },
+    {
+      path: 'agendamentos',
+      name: 'TelaAgendamentos',
+      component: TelaAgendamentos,
+      meta: { title: 'Agendamentos' },
+      children: [
+        { path: '', redirect: '/menu/agendamentos/lista' },
+        { path: 'lista', name: 'Agendamentos', component: ListaAgendamentos, meta: { title: 'Lista de Agendamentos' } },
+        { path: 'historico', name: 'Historico', component: HistoricoEncaminhamentos, meta: { title: 'Histórico de Encaminhamentos' } }
+      ]
+    },
+    { path: 'cadastro', name: 'TelaCadastro', component: TelaCadastro, meta: { title: 'Cadastro' } },
+    { path: 'adicionar', name: 'AdicionarEncaminhamento', component: AdicionarEncaminhamento, meta: { title: 'Adicionar Encaminhamento' } },
+    { path: 'adicionar-usuario', name: 'AdicionarUsuario', component: AdicionarUsuario, meta: { title: 'Adicionar Usuário' } },
+    { path: 'adicionar-unidade', name: 'AdicionarUnidade', component: AdicionarUnidade, meta: { title: 'Adicionar Unidade' } },
+    { path: 'usuarios-ubs', name: 'UsuariosUBS', component: UsuariosUBS, meta: { title: 'Usuários da UBS' } },
+    { path: 'unidades-saude', name: 'UnidadesSaude', component: UnidadesUBS, meta: { title: 'Unidades de Saúde' } },
+    { path: 'meus-pacientes', name: 'MeusPacientes', component: MeusPacientes, meta: { title: 'Meus Pacientes' } },
+    { path: 'encaminhamentos-ubs', name: 'EncaminhamentosUBS', component: EncaminhamentosUBS, meta: { title: 'Encaminhamentos UBS' } }
+  ]
+},
   {
     path: '/informacoes',
     name: 'TelaInformacoes',
