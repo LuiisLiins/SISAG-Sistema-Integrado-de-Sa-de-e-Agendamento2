@@ -88,6 +88,7 @@ export default {
   font-size: 1.8rem;
   font-weight: 600;
   margin: 0;
+  padding-left: 6%;
 }
 
 /* Usuário + logout */
